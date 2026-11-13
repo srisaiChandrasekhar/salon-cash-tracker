@@ -340,6 +340,12 @@
     letter-spacing: 0.04em; text-align: center; background: var(--surface-sunk);
     border-radius: 10px; padding: 14px; margin: 6px 0 16px; word-break: break-all;
   }
+  #printArea { display: none; }
+  @media print {
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block !important; }
+    #printArea table td { padding: 3px 6px; border-bottom: 1px solid #ddd; }
+  }
 </style>
 </head>
 <body>
@@ -371,6 +377,7 @@
 
 <div class="toast" id="toast"></div>
 <div id="overlayRoot"></div>
+<div id="printArea"></div>
 
 <script>
 /* ============ i18n ============ */
@@ -435,6 +442,8 @@ const TRANSLATIONS = {
     toast_enter_amount: "Enter an amount greater than 0", toast_pick_worker: "Pick which worker this is for",
     toast_collection_added: "Collection added", toast_shop_added: "Shop expense added", toast_cash_added: "Cash use added",
     toast_entry_deleted: "Entry deleted", toast_enter_name: "Enter a name first",
+    sheet_title_edit: "Edit Entry", toast_entry_updated: "Entry updated",
+    btn_export_csv: "Export CSV", btn_export_pdf: "Export PDF", pdf_report_title: "Cash Report",
     toast_data_copied: "All data copied to clipboard", toast_data_reset: "All data reset",
     toast_report_copied: "Report copied — paste it anywhere", toast_copy_failed: "Couldn't copy — select and copy manually",
     toast_save_failed: "Couldn't save — storage may be full",
@@ -442,6 +451,7 @@ const TRANSLATIONS = {
     confirm_remove_worker_title: "Remove {name}?", confirm_remove_worker_text: "Past entries under this name are kept in history.",
     confirm_reset_title: "Clear all entries?", confirm_reset_text: "Every logged entry will be permanently deleted. Workers and settings are kept.",
     range_week: "7 days", range_month: "30 days", range_all: "All time",
+    quick_week_label: "This week", quick_month_label: "This month", btn_view_history: "View history",
     day_sub: "{income} in · {expense} cash used · {shop} shop",
     report_header: "{shop} — cash report", report_range_label: "Range: {range}",
     report_range_week: "last 7 days", report_range_month: "last 30 days", report_range_all: "all time",
@@ -476,6 +486,8 @@ const TRANSLATIONS = {
     toast_enter_amount: "0 से अधिक राशि दर्ज करें", toast_pick_worker: "यह किस कर्मचारी के लिए है, चुनें",
     toast_collection_added: "कलेक्शन जोड़ा गया", toast_shop_added: "दुकान खर्च जोड़ा गया", toast_cash_added: "नकद उपयोग जोड़ा गया",
     toast_entry_deleted: "एंट्री हटाई गई", toast_enter_name: "पहले नाम दर्ज करें",
+    sheet_title_edit: "एंट्री संपादित करें", toast_entry_updated: "एंट्री अपडेट हुई",
+    btn_export_csv: "CSV निर्यात करें", btn_export_pdf: "PDF निर्यात करें", pdf_report_title: "नकद रिपोर्ट",
     toast_data_copied: "सभी डेटा क्लिपबोर्ड पर कॉपी हो गया", toast_data_reset: "सभी डेटा रीसेट हो गया",
     toast_report_copied: "रिपोर्ट कॉपी हो गई — कहीं भी पेस्ट करें", toast_copy_failed: "कॉपी नहीं हो सका — मैन्युअल रूप से चुनें और कॉपी करें",
     toast_save_failed: "सेव नहीं हो सका — स्टोरेज भरा हो सकता है",
@@ -483,6 +495,7 @@ const TRANSLATIONS = {
     confirm_remove_worker_title: "{name} को हटाएं?", confirm_remove_worker_text: "इस नाम के पुराने रिकॉर्ड इतिहास में बने रहेंगे।",
     confirm_reset_title: "सभी एंट्री हटाएं?", confirm_reset_text: "हर दर्ज एंट्री हमेशा के लिए मिट जाएगी। कर्मचारी और सेटिंग्स सुरक्षित रहेंगी।",
     range_week: "7 दिन", range_month: "30 दिन", range_all: "सभी समय",
+    quick_week_label: "इस सप्ताह", quick_month_label: "इस महीने", btn_view_history: "इतिहास देखें",
     day_sub: "{income} आया · {expense} नकद उपयोग · {shop} दुकान खर्च",
     report_header: "{shop} — नकद रिपोर्ट", report_range_label: "अवधि: {range}",
     report_range_week: "पिछले 7 दिन", report_range_month: "पिछले 30 दिन", report_range_all: "सभी समय",
@@ -517,6 +530,8 @@ const TRANSLATIONS = {
     toast_enter_amount: "أدخل مبلغًا أكبر من 0", toast_pick_worker: "اختر العامل المخصص لهذا",
     toast_collection_added: "تمت إضافة التحصيل", toast_shop_added: "تمت إضافة مصروف المحل", toast_cash_added: "تمت إضافة النقد المستخدم",
     toast_entry_deleted: "تم حذف الإدخال", toast_enter_name: "أدخل الاسم أولاً",
+    sheet_title_edit: "تعديل الإدخال", toast_entry_updated: "تم تحديث الإدخال",
+    btn_export_csv: "تصدير CSV", btn_export_pdf: "تصدير PDF", pdf_report_title: "تقرير النقد",
     toast_data_copied: "تم نسخ جميع البيانات", toast_data_reset: "تمت إعادة تعيين جميع البيانات",
     toast_report_copied: "تم نسخ التقرير — يمكنك لصقه في أي مكان", toast_copy_failed: "تعذر النسخ — حدد وانسخ يدويًا",
     toast_save_failed: "تعذر الحفظ — قد تكون مساحة التخزين ممتلئة",
@@ -524,6 +539,7 @@ const TRANSLATIONS = {
     confirm_remove_worker_title: "إزالة {name}؟", confirm_remove_worker_text: "ستبقى الإدخالات السابقة بهذا الاسم في السجل.",
     confirm_reset_title: "حذف جميع الإدخالات؟", confirm_reset_text: "سيتم حذف كل إدخال مسجل نهائيًا. ستبقى بيانات العمال والإعدادات كما هي.",
     range_week: "7 أيام", range_month: "30 يومًا", range_all: "كل الوقت",
+    quick_week_label: "هذا الأسبوع", quick_month_label: "هذا الشهر", btn_view_history: "عرض السجل",
     day_sub: "{income} تحصيل · {expense} نقد مستخدم · {shop} مصاريف محل",
     report_header: "{shop} — تقرير النقد", report_range_label: "الفترة: {range}",
     report_range_week: "آخر 7 أيام", report_range_month: "آخر 30 يومًا", report_range_all: "كل الوقت",
@@ -558,6 +574,8 @@ const TRANSLATIONS = {
     toast_enter_amount: "০ এর বেশি পরিমাণ লিখুন", toast_pick_worker: "এটি কোন কর্মীর জন্য তা নির্বাচন করুন",
     toast_collection_added: "কালেকশন যুক্ত হয়েছে", toast_shop_added: "দোকানের খরচ যুক্ত হয়েছে", toast_cash_added: "নগদ ব্যবহার যুক্ত হয়েছে",
     toast_entry_deleted: "এন্ট্রি মুছে ফেলা হয়েছে", toast_enter_name: "প্রথমে নাম লিখুন",
+    sheet_title_edit: "এন্ট্রি সম্পাদনা করুন", toast_entry_updated: "এন্ট্রি আপডেট হয়েছে",
+    btn_export_csv: "CSV এক্সপোর্ট করুন", btn_export_pdf: "PDF এক্সপোর্ট করুন", pdf_report_title: "ক্যাশ রিপোর্ট",
     toast_data_copied: "সব ডেটা ক্লিপবোর্ডে কপি হয়েছে", toast_data_reset: "সব ডেটা রিসেট হয়েছে",
     toast_report_copied: "রিপোর্ট কপি হয়েছে — যেকোনো জায়গায় পেস্ট করুন", toast_copy_failed: "কপি করা যায়নি — ম্যানুয়ালি নির্বাচন করে কপি করুন",
     toast_save_failed: "সেভ করা যায়নি — স্টোরেজ পূর্ণ হতে পারে",
@@ -565,6 +583,7 @@ const TRANSLATIONS = {
     confirm_remove_worker_title: "{name} কে বাদ দিবেন?", confirm_remove_worker_text: "এই নামে পুরনো রেকর্ড ইতিহাসে থাকবে।",
     confirm_reset_title: "সব এন্ট্রি মুছবেন?", confirm_reset_text: "প্রতিটি লগ করা এন্ট্রি স্থায়ীভাবে মুছে যাবে। কর্মী ও সেটিংস থেকে যাবে।",
     range_week: "৭ দিন", range_month: "৩০ দিন", range_all: "সব সময়",
+    quick_week_label: "এই সপ্তাহ", quick_month_label: "এই মাস", btn_view_history: "ইতিহাস দেখুন",
     day_sub: "{income} এসেছে · {expense} নগদ ব্যবহার · {shop} দোকানের খরচ",
     report_header: "{shop} — ক্যাশ রিপোর্ট", report_range_label: "সময়কাল: {range}",
     report_range_week: "গত ৭ দিন", report_range_month: "গত ৩০ দিন", report_range_all: "সব সময়",
@@ -599,6 +618,8 @@ const TRANSLATIONS = {
     toast_enter_amount: "0 سے زیادہ رقم درج کریں", toast_pick_worker: "یہ کس کارکن کے لیے ہے، منتخب کریں",
     toast_collection_added: "کلیکشن شامل ہو گئی", toast_shop_added: "دکان کا خرچ شامل ہو گیا", toast_cash_added: "نقدی استعمال شامل ہو گیا",
     toast_entry_deleted: "اندراج حذف ہو گیا", toast_enter_name: "پہلے نام درج کریں",
+    sheet_title_edit: "اندراج میں ترمیم کریں", toast_entry_updated: "اندراج اپ ڈیٹ ہو گیا",
+    btn_export_csv: "CSV ایکسپورٹ کریں", btn_export_pdf: "PDF ایکسپورٹ کریں", pdf_report_title: "نقدی رپورٹ",
     toast_data_copied: "تمام ڈیٹا کاپی ہو گیا", toast_data_reset: "تمام ڈیٹا ری سیٹ ہو گیا",
     toast_report_copied: "رپورٹ کاپی ہو گئی — کہیں بھی پیسٹ کریں", toast_copy_failed: "کاپی نہیں ہو سکی — دستی طور پر منتخب کر کے کاپی کریں",
     toast_save_failed: "محفوظ نہیں ہو سکا — اسٹوریج بھرا ہو سکتا ہے",
@@ -606,6 +627,7 @@ const TRANSLATIONS = {
     confirm_remove_worker_title: "{name} کو ہٹائیں؟", confirm_remove_worker_text: "اس نام کے پرانے ریکارڈ تاریخ میں رہیں گے۔",
     confirm_reset_title: "تمام اندراجات حذف کریں؟", confirm_reset_text: "ہر درج شدہ اندراج ہمیشہ کے لیے حذف ہو جائے گا۔ کارکن اور ترتیبات محفوظ رہیں گی۔",
     range_week: "7 دن", range_month: "30 دن", range_all: "تمام وقت",
+    quick_week_label: "اس ہفتے", quick_month_label: "اس مہینے", btn_view_history: "تاریخ دیکھیں",
     day_sub: "{income} آیا · {expense} نقدی استعمال · {shop} دکان کا خرچ",
     report_header: "{shop} — نقدی رپورٹ", report_range_label: "مدت: {range}",
     report_range_week: "پچھلے 7 دن", report_range_month: "پچھلے 30 دن", report_range_all: "تمام وقت",
@@ -640,6 +662,8 @@ const TRANSLATIONS = {
     toast_enter_amount: "0 కంటే ఎక్కువ మొత్తం నమోదు చేయండి", toast_pick_worker: "ఇది ఏ కార్మికుడికో ఎంచుకోండి",
     toast_collection_added: "కలెక్షన్ జోడించబడింది", toast_shop_added: "దుకాణ ఖర్చు జోడించబడింది", toast_cash_added: "నగదు వాడకం జోడించబడింది",
     toast_entry_deleted: "ఎంట్రీ తొలగించబడింది", toast_enter_name: "ముందుగా పేరు నమోదు చేయండి",
+    sheet_title_edit: "ఎంట్రీని సవరించండి", toast_entry_updated: "ఎంట్రీ అప్‌డేట్ చేయబడింది",
+    btn_export_csv: "CSV ఎగుమతి చేయి", btn_export_pdf: "PDF ఎగుమతి చేయి", pdf_report_title: "నగదు రిపోర్ట్",
     toast_data_copied: "మొత్తం డేటా క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది", toast_data_reset: "మొత్తం డేటా రీసెట్ చేయబడింది",
     toast_report_copied: "రిపోర్ట్ కాపీ చేయబడింది — ఎక్కడైనా పేస్ట్ చేయండి", toast_copy_failed: "కాపీ చేయలేకపోయాం — మాన్యువల్‌గా ఎంచుకుని కాపీ చేయండి",
     toast_save_failed: "సేవ్ చేయలేకపోయాం — నిల్వ నిండి ఉండవచ్చు",
@@ -647,6 +671,7 @@ const TRANSLATIONS = {
     confirm_remove_worker_title: "{name}ని తొలగించాలా?", confirm_remove_worker_text: "ఈ పేరు కింద గత ఎంట్రీలు చరిత్రలో ఉంటాయి.",
     confirm_reset_title: "అన్ని ఎంట్రీలు తొలగించాలా?", confirm_reset_text: "నమోదు చేసిన ప్రతి ఎంట్రీ శాశ్వతంగా తొలగించబడుతుంది. కార్మికులు, సెట్టింగ్‌లు అలాగే ఉంటాయి.",
     range_week: "7 రోజులు", range_month: "30 రోజులు", range_all: "అన్ని సమయాలు",
+    quick_week_label: "ఈ వారం", quick_month_label: "ఈ నెల", btn_view_history: "చరిత్ర చూడండి",
     day_sub: "{income} వచ్చింది · {expense} నగదు వాడకం · {shop} దుకాణ ఖర్చు",
     report_header: "{shop} — నగదు రిపోర్ట్", report_range_label: "కాలం: {range}",
     report_range_week: "గత 7 రోజులు", report_range_month: "గత 30 రోజులు", report_range_all: "అన్ని సమయాలు",
@@ -895,6 +920,9 @@ function renderToday() {
   const tt = totalsForEntries(list);
   const netClass = tt.net < 0 ? 'neg' : 'pos';
 
+  const weekTotals = totalsForEntries(allDatesSorted().filter(d => d >= dateDaysAgo(6)).flatMap(entriesForDate));
+  const monthTotals = totalsForEntries(allDatesSorted().filter(d => d >= dateDaysAgo(29)).flatMap(entriesForDate));
+
   const workerRows = state.workers.map(w => {
     const amt = tt.perWorker[w] || 0;
     const count = list.filter(e => e.type === 'income' && e.worker === w).length;
@@ -927,6 +955,17 @@ function renderToday() {
           <div class="tlabel">${t('tile_shop_expenses').toUpperCase()}</div>
           <div class="tval num">${fmtMoney(tt.shopExpense)}</div>
         </div>
+      </div>
+    </div>
+
+    <div class="quick-totals" onclick="goTo('history')" style="display:flex;gap:10px;margin-bottom:16px;cursor:pointer;">
+      <div class="card" style="flex:1;padding:10px 14px;">
+        <div class="day-sub" style="margin-bottom:2px;">${t('quick_week_label')}</div>
+        <div class="num" style="font-weight:700;font-size:15px;color:${weekTotals.net < 0 ? 'var(--expense)' : 'var(--income)'}">${fmtMoney(weekTotals.net)}</div>
+      </div>
+      <div class="card" style="flex:1;padding:10px 14px;">
+        <div class="day-sub" style="margin-bottom:2px;">${t('quick_month_label')}</div>
+        <div class="num" style="font-weight:700;font-size:15px;color:${monthTotals.net < 0 ? 'var(--expense)' : 'var(--income)'}">${fmtMoney(monthTotals.net)}</div>
       </div>
     </div>
 
@@ -974,10 +1013,18 @@ function entryRowHtml(e) {
         <div class="entry-sub">${sub}</div>
       </div>
       <div class="entry-amt num ${kind}">${isIncome ? '+' : '-'}${fmtMoney(e.amount)}</div>
+      <button class="entry-del" onclick="editEntry('${e.id}')" aria-label="Edit entry" style="color:var(--text-muted);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      </button>
       <button class="entry-del" onclick="confirmDeleteEntry('${e.id}')" aria-label="Delete entry">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>`;
+}
+
+function editEntry(id) {
+  const entry = state.entries.find(e => e.id === id);
+  if (entry) openEntrySheet(entry.type, entry);
 }
 
 function escapeHtml(s) {
@@ -995,14 +1042,15 @@ function shopCategories() {
   ];
 }
 
-function openEntrySheet(type) {
+function openEntrySheet(type, existingEntry) {
   const root = document.getElementById('overlayRoot');
-  let selectedWorker = null;
+  let selectedWorker = existingEntry ? existingEntry.worker : null;
   const workerChips = state.workers.map(w =>
-    `<button type="button" class="chip" data-worker="${escapeHtml(w)}">${escapeHtml(w)}</button>`
+    `<button type="button" class="chip${w === selectedWorker ? ' selected' : ''}" data-worker="${escapeHtml(w)}">${escapeHtml(w)}</button>`
   ).join('');
 
-  const sheetTitle = type === 'income' ? t('sheet_title_income') : type === 'shopexpense' ? t('sheet_title_shop') : t('sheet_title_cash');
+  const sheetTitle = existingEntry ? t('sheet_title_edit')
+    : type === 'income' ? t('sheet_title_income') : type === 'shopexpense' ? t('sheet_title_shop') : t('sheet_title_cash');
   const workerFieldLabel = type === 'income' ? t('label_which_worker') : t('label_who_logged');
   const noteLabel = type === 'income' ? t('label_note_optional') : t('label_what_for');
   const notePlaceholder = type === 'income' ? t('placeholder_note_income') : type === 'shopexpense' ? t('placeholder_note_shop') : t('placeholder_note_cash');
@@ -1066,6 +1114,11 @@ function openEntrySheet(type) {
 
   const amtInput = document.getElementById('amtInput');
   const amtWrap = document.getElementById('amtWrap');
+  const noteInputEl = document.getElementById('noteInput');
+  if (existingEntry) {
+    amtInput.value = existingEntry.amount;
+    noteInputEl.value = existingEntry.note || '';
+  }
   amtInput.addEventListener('focus', () => amtWrap.classList.add('focused'));
   amtInput.addEventListener('blur', () => amtWrap.classList.remove('focused'));
   setTimeout(() => amtInput.focus(), 50);
@@ -1084,6 +1137,27 @@ function openEntrySheet(type) {
       return;
     }
     const note = document.getElementById('noteInput').value.trim();
+    const saveBtn = document.getElementById('saveEntryBtn');
+    saveBtn.disabled = true;
+
+    if (existingEntry) {
+      try {
+        const updated = await apiCall('/entries/' + encodeURIComponent(existingEntry.id), {
+          method: 'PUT',
+          body: JSON.stringify({ worker: selectedWorker, amount: Math.round(amount * 100) / 100, note })
+        });
+        const idx = state.entries.findIndex(e => e.id === existingEntry.id);
+        if (idx !== -1) state.entries[idx] = updated;
+        closeSheet();
+        render();
+        showToast(t('toast_entry_updated'));
+      } catch (e) {
+        saveBtn.disabled = false;
+        showToast(e.message || t('toast_save_failed'));
+      }
+      return;
+    }
+
     const payload = {
       date: todayStr(),
       time: nowTime(),
@@ -1092,8 +1166,6 @@ function openEntrySheet(type) {
       amount: Math.round(amount * 100) / 100,
       note
     };
-    const saveBtn = document.getElementById('saveEntryBtn');
-    saveBtn.disabled = true;
     try {
       const entry = await apiCall('/entries', { method: 'POST', body: JSON.stringify(payload) });
       state.entries.push(entry);
@@ -1200,8 +1272,10 @@ function renderHistory() {
       </div>
     </div>
 
-    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
       <button class="btn ghost" style="flex:none;padding:9px 16px;font-size:13px;" id="copyReportBtn">${t('btn_copy_report')}</button>
+      <button class="btn ghost" style="flex:none;padding:9px 16px;font-size:13px;" id="exportCsvBtn">${t('btn_export_csv')}</button>
+      <button class="btn ghost" style="flex:none;padding:9px 16px;font-size:13px;" id="exportPdfBtn">${t('btn_export_pdf')}</button>
     </div>
 
     <div class="section-label">${t('section_days')}</div>
@@ -1222,6 +1296,69 @@ function wireHistory() {
   });
   const copyBtn = document.getElementById('copyReportBtn');
   if (copyBtn) copyBtn.addEventListener('click', copyReportToClipboard);
+  const csvBtn = document.getElementById('exportCsvBtn');
+  if (csvBtn) csvBtn.addEventListener('click', exportCsvReport);
+  const pdfBtn = document.getElementById('exportPdfBtn');
+  if (pdfBtn) pdfBtn.addEventListener('click', exportPdfReport);
+}
+
+function rangeLabelText() {
+  return historyRange === 'week' ? t('report_range_week') : historyRange === 'month' ? t('report_range_month') : t('report_range_all');
+}
+
+function csvEscape(val) {
+  const s = String(val == null ? '' : val);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function exportCsvReport() {
+  const dates = rangeDates().slice().sort();
+  const allEntries = dates.flatMap(d => entriesForDate(d));
+  const rows = [['Date', 'Time', 'Type', 'Worker', 'Amount', 'Note']];
+  allEntries.slice().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).forEach(e => {
+    rows.push([e.date, e.time, e.type, e.worker || '', e.amount, e.note || '']);
+  });
+  const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(state.shopName || 'salon').replace(/[^a-z0-9]+/gi, '-')}-${historyRange}-report.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportPdfReport() {
+  const dates = rangeDates().slice().sort();
+  const totals = totalsForEntries(dates.flatMap(d => entriesForDate(d)));
+  const printArea = document.getElementById('printArea');
+
+  const dayBlocks = dates.map(d => {
+    const list = entriesForDate(d);
+    const tt = totalsForEntries(list);
+    const entryLines = list.slice().sort((a, b) => a.time.localeCompare(b.time)).map(e => {
+      const who = e.type === 'income' ? (e.worker || t('unassigned')) : (e.note || (e.type === 'shopexpense' ? t('fallback_shop_expense') : t('fallback_cash_used')));
+      return `<tr><td>${escapeHtml(e.time)}</td><td>${escapeHtml(who)}</td><td style="text-align:right;">${e.type === 'income' ? '+' : '-'}${fmtMoney(e.amount)}</td></tr>`;
+    }).join('');
+    return `
+      <h3 style="margin:16px 0 4px;">${escapeHtml(fmtDateShort(d))} — ${t('day_sub', { income: fmtMoney(tt.income), expense: fmtMoney(tt.expense), shop: fmtMoney(tt.shopExpense) })}</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">${entryLines}</table>
+    `;
+  }).join('');
+
+  printArea.innerHTML = `
+    <div style="font-family:Arial,sans-serif;color:#111;padding:20px;">
+      <h1 style="margin:0 0 4px;">${escapeHtml(state.shopName || 'Salon')} — ${t('pdf_report_title')}</h1>
+      <div style="margin-bottom:12px;color:#555;">${t('report_range_label', { range: rangeLabelText() })}</div>
+      <div style="font-weight:bold;margin-bottom:12px;">
+        ${t('report_total', { income: fmtMoney(totals.income), expense: fmtMoney(totals.expense), shop: fmtMoney(totals.shopExpense), net: fmtMoney(totals.net) })}
+      </div>
+      ${dayBlocks || `<div>${t('empty_history')}</div>`}
+    </div>
+  `;
+  window.print();
 }
 
 function copyReportToClipboard() {

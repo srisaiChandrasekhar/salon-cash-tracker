@@ -10,7 +10,7 @@ function defaultState() {
 }
 
 app.http("entries", {
-  methods: ["POST", "DELETE"],
+  methods: ["POST", "PUT", "DELETE"],
   authLevel: "anonymous",
   route: "entries/{id?}",
   handler: async (request, context) => {
@@ -31,6 +31,39 @@ app.http("entries", {
       }
       await writeShopState(shopCode, current);
       return { status: 200, jsonBody: { ok: true } };
+    }
+
+    if (request.method === "PUT") {
+      // Edit an existing entry — only amount, worker, and note can change.
+      // The date/time/type stay fixed so edits don't reshuffle history.
+      if (!id) return { status: 400, jsonBody: { error: "Entry id is required" } };
+      const idx = current.entries.findIndex((e) => e.id === id);
+      if (idx === -1) return { status: 404, jsonBody: { error: "Entry not found" } };
+
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return { status: 400, jsonBody: { error: "Invalid request body" } };
+      }
+
+      const amount = Number(body.amount);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return { status: 400, jsonBody: { error: "Amount must be greater than 0" } };
+      }
+      const worker = body.worker ? String(body.worker).trim().slice(0, 40) : null;
+      const note = body.note ? String(body.note).trim().slice(0, 200) : "";
+
+      const updated = {
+        ...current.entries[idx],
+        amount: Math.round(amount * 100) / 100,
+        worker,
+        note
+      };
+      current.entries[idx] = updated;
+      await writeShopState(shopCode, current);
+
+      return { status: 200, jsonBody: updated };
     }
 
     // POST — add one entry
