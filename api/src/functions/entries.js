@@ -9,6 +9,25 @@ function defaultState() {
   return { shopName: "Salon", currency: "USD", language: "en", workers: [], entries: [] };
 }
 
+const MAX_LOG_ENTRIES = 300;
+
+// Record every add/edit/delete so nothing can quietly disappear — the
+// owner can review this later even if the underlying entry is gone.
+// Anyone who knows the shop PIN can use the app (there's no separate
+// worker login), so this log is the only way to catch a figure being
+// changed or an entry being deleted after the fact.
+function logActivity(current, logEntry) {
+  if (!Array.isArray(current.activityLog)) current.activityLog = [];
+  current.activityLog.push({
+    id: Date.now().toString(36) + crypto.randomBytes(3).toString("hex"),
+    at: new Date().toISOString(),
+    ...logEntry
+  });
+  if (current.activityLog.length > MAX_LOG_ENTRIES) {
+    current.activityLog = current.activityLog.slice(current.activityLog.length - MAX_LOG_ENTRIES);
+  }
+}
+
 app.http("entries", {
   methods: ["POST", "PUT", "DELETE"],
   authLevel: "anonymous",
@@ -28,9 +47,22 @@ app.http("entries", {
 
     if (request.method === "DELETE") {
       if (id) {
+        const deleted = current.entries.find((e) => e.id === id);
         current.entries = current.entries.filter((e) => e.id !== id);
+        if (deleted) {
+          logActivity(current, {
+            action: "delete",
+            entryType: deleted.type,
+            worker: deleted.worker,
+            amount: deleted.amount,
+            note: deleted.note,
+            entryDate: deleted.date,
+            entryTime: deleted.time
+          });
+        }
       } else {
         // Bulk delete — "Reset all data" clears entries only.
+        logActivity(current, { action: "reset", count: current.entries.length });
         current.entries = [];
       }
       await writeShopState(shopCode, current);
@@ -58,13 +90,26 @@ app.http("entries", {
       const worker = body.worker ? String(body.worker).trim().slice(0, 40) : null;
       const note = body.note ? String(body.note).trim().slice(0, 200) : "";
 
+      const before = current.entries[idx];
       const updated = {
-        ...current.entries[idx],
+        ...before,
         amount: Math.round(amount * 100) / 100,
         worker,
         note
       };
       current.entries[idx] = updated;
+      logActivity(current, {
+        action: "edit",
+        entryType: updated.type,
+        entryDate: updated.date,
+        entryTime: updated.time,
+        prevAmount: before.amount,
+        prevWorker: before.worker,
+        prevNote: before.note,
+        amount: updated.amount,
+        worker: updated.worker,
+        note: updated.note
+      });
       await writeShopState(shopCode, current);
 
       return { status: 200, jsonBody: updated };

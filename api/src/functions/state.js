@@ -14,9 +14,10 @@ app.http("state", {
     if (!data) {
       return {
         status: 200,
-        jsonBody: { shopName: "Salon", currency: "USD", language: "en", workers: [], entries: [] }
+        jsonBody: { shopName: "Salon", currency: "USD", language: "en", workers: [], entries: [], activityLog: [] }
       };
     }
+    if (!Array.isArray(data.activityLog)) data.activityLog = [];
     return { status: 200, jsonBody: data };
   }
 });
