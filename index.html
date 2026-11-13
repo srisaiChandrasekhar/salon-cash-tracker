@@ -692,7 +692,10 @@ function clearAuth() {
 async function apiCall(path, options) {
   options = options || {};
   const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
-  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  if (authToken) {
+    headers['Authorization'] = 'Bearer ' + authToken;
+    headers['X-SC-Token'] = authToken;
+  }
   let res;
   try {
     res = await fetch(API_BASE + path, Object.assign({}, options, { headers }));
