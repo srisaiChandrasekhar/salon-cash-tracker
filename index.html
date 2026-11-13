@@ -358,7 +358,8 @@ const LANGUAGES = {
   hi: { label: 'हिन्दी (Hindi — India)', locale: 'hi-IN', dir: 'ltr' },
   ar: { label: 'العربية (Arabic — Saudi Arabia)', locale: 'ar-SA', dir: 'rtl' },
   bn: { label: 'বাংলা (Bengali — Bangladesh)', locale: 'bn-BD', dir: 'ltr' },
-  ur: { label: 'اردو (Urdu — Pakistan)', locale: 'ur-PK', dir: 'rtl' }
+  ur: { label: 'اردو (Urdu — Pakistan)', locale: 'ur-PK', dir: 'rtl' },
+  te: { label: 'తెలుగు (Telugu)', locale: 'te-IN', dir: 'ltr' }
 };
 
 const TRANSLATIONS = {
@@ -566,6 +567,47 @@ const TRANSLATIONS = {
     settings_currency: "کرنسی", settings_language: "زبان", settings_region: "کرنسی اور زبان",
     settings_backup_title: "تمام ڈیٹا کا بیک اپ لیں", settings_backup_sub: "ہر اندراج کو ٹیکسٹ کے طور پر کاپی کرتا ہے — Notes، Sheets وغیرہ میں پیسٹ کریں۔",
     settings_reset_title: "تمام ڈیٹا ری سیٹ کریں", settings_reset_sub: "ہر اندراج اور کارکن حذف ہو جائے گا۔ واپس نہیں لایا جا سکتا۔"
+  },
+  te: {
+    nav_today: "ఈరోజు", nav_history: "చరిత్ర", nav_settings: "సెట్టింగ్స్",
+    today_net_label: "ఈరోజు నికర నగదు", history_net_label: "ఈ కాలానికి నికరం",
+    tile_collected: "వసూలు చేసినది", tile_cash_used: "ఖర్చు చేసిన నగదు", tile_shop_expenses: "దుకాణ ఖర్చులు",
+    btn_add_collection: "కలెక్షన్ జోడించు", btn_cash_used: "నగదు వాడకం", btn_shop_expense: "దుకాణ ఖర్చు",
+    section_by_worker: "కార్మికుల వారీగా", section_todays_entries: "ఈరోజు ఎంట్రీలు", section_days: "రోజులు", section_data: "డేటా",
+    entries_count: "{count} ఎంట్రీలు",
+    empty_today: "ఈరోజు ఇంకా ఎంట్రీలు లేవు. కింద ఉన్న బటన్ నొక్కి జోడించండి.",
+    empty_no_workers: "కార్మికులు ఎవరూ లేరు. సెట్టింగ్స్‌లో జోడించండి.",
+    empty_history: "ఈ కాలంలో ఎంట్రీలు లేవు.",
+    unassigned: "నిర్దేశించలేదు", fallback_shop_expense: "దుకాణ ఖర్చు", fallback_cash_used: "నగదు వాడకం",
+    logged_by: "{name} నమోదు చేశారు",
+    sheet_title_income: "కలెక్షన్ జోడించు", sheet_title_shop: "దుకాణ ఖర్చు జోడించు", sheet_title_cash: "నగదు వాడకం జోడించు",
+    label_which_worker: "ఏ కార్మికుడు?", label_who_logged: "ఎవరు నమోదు చేశారు? (ఐచ్ఛికం)",
+    label_amount: "మొత్తం", label_common_categories: "సాధారణ వర్గాలు",
+    label_note_optional: "గమనిక (ఐచ్ఛికం)", label_what_for: "దేని కోసం?",
+    placeholder_note_income: "ఉదా. హెయిర్‌కట్, టిప్", placeholder_note_shop: "ఉదా. అద్దె, సామాగ్రి", placeholder_note_cash: "ఉదా. లంచ్, టిల్ కోసం చిల్లర",
+    cat_rent: "అద్దె", cat_supplies: "సామాగ్రి", cat_utilities: "యుటిలిటీలు", cat_maintenance: "మెయింటెనెన్స్", cat_other: "ఇతర",
+    btn_cancel: "రద్దు చేయి", btn_save: "సేవ్ చేయి", btn_delete: "తొలగించు", btn_copy: "కాపీ చేయి", btn_add: "జోడించు", btn_reset: "రీసెట్ చేయి", btn_copy_report: "రిపోర్ట్ కాపీ చేయి",
+    toast_enter_amount: "0 కంటే ఎక్కువ మొత్తం నమోదు చేయండి", toast_pick_worker: "ఇది ఏ కార్మికుడికో ఎంచుకోండి",
+    toast_collection_added: "కలెక్షన్ జోడించబడింది", toast_shop_added: "దుకాణ ఖర్చు జోడించబడింది", toast_cash_added: "నగదు వాడకం జోడించబడింది",
+    toast_entry_deleted: "ఎంట్రీ తొలగించబడింది", toast_enter_name: "ముందుగా పేరు నమోదు చేయండి",
+    toast_data_copied: "మొత్తం డేటా క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది", toast_data_reset: "మొత్తం డేటా రీసెట్ చేయబడింది",
+    toast_report_copied: "రిపోర్ట్ కాపీ చేయబడింది — ఎక్కడైనా పేస్ట్ చేయండి", toast_copy_failed: "కాపీ చేయలేకపోయాం — మాన్యువల్‌గా ఎంచుకుని కాపీ చేయండి",
+    toast_save_failed: "సేవ్ చేయలేకపోయాం — నిల్వ నిండి ఉండవచ్చు",
+    confirm_delete_title: "ఈ ఎంట్రీని తొలగించాలా?", confirm_delete_text: "దీన్ని వెనక్కి తీసుకోలేము.",
+    confirm_remove_worker_title: "{name}ని తొలగించాలా?", confirm_remove_worker_text: "ఈ పేరు కింద గత ఎంట్రీలు చరిత్రలో ఉంటాయి.",
+    confirm_reset_title: "మొత్తం డేటా రీసెట్ చేయాలా?", confirm_reset_text: "ప్రతి ఎంట్రీ, కార్మికుడు మరియు దుకాణ పేరు శాశ్వతంగా తొలగించబడతాయి.",
+    range_week: "7 రోజులు", range_month: "30 రోజులు", range_all: "అన్ని సమయాలు",
+    day_sub: "{income} వచ్చింది · {expense} నగదు వాడకం · {shop} దుకాణ ఖర్చు",
+    report_header: "{shop} — నగదు రిపోర్ట్", report_range_label: "కాలం: {range}",
+    report_range_week: "గత 7 రోజులు", report_range_month: "గత 30 రోజులు", report_range_all: "అన్ని సమయాలు",
+    report_line: "{date} — వసూలు {income}, నగదు వాడకం {expense}, దుకాణ ఖర్చు {shop}, నికరం {net}",
+    report_total: "మొత్తం — వసూలు {income}, నగదు వాడకం {expense}, దుకాణ ఖర్చు {shop}, నికరం {net}",
+    tag_shop: "[దుకాణం]", tag_cash: "[నగదు వాడకం]",
+    settings_shop_name: "దుకాణం పేరు", placeholder_shop_name: "దుకాణం పేరు",
+    settings_workers: "కార్మికులు", placeholder_new_worker: "కొత్త కార్మికుడి పేరు",
+    settings_currency: "కరెన్సీ", settings_language: "భాష", settings_region: "కరెన్సీ & భాష",
+    settings_backup_title: "మొత్తం డేటా బ్యాకప్ చేయి", settings_backup_sub: "ప్రతి ఎంట్రీని టెక్స్ట్‌గా కాపీ చేస్తుంది — Notes, Sheets వంటి వాటిలో పేస్ట్ చేయండి.",
+    settings_reset_title: "మొత్తం డేటా రీసెట్ చేయి", settings_reset_sub: "ప్రతి ఎంట్రీ, కార్మికుడు తొలగించబడతారు. వెనక్కి తీసుకోలేము."
   }
 };
 
