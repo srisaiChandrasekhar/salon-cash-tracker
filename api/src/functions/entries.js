@@ -20,7 +20,11 @@ app.http("entries", {
     const current = (await readShopState(shopCode)) || defaultState();
     if (!Array.isArray(current.entries)) current.entries = [];
 
-    const id = context.bindingData && context.bindingData.id;
+    // Azure Functions v4 model: route params come from request.params, not
+    // context.bindingData (which doesn't populate for this route). Using
+    // bindingData here silently treated every single-entry delete as a
+    // bulk delete, wiping all entries — fixed by reading request.params.
+    const id = request.params && request.params.id;
 
     if (request.method === "DELETE") {
       if (id) {
