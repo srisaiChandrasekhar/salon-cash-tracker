@@ -3,7 +3,15 @@
 // network drops mid-session. It deliberately does NOT cache anything
 // under /api/ — all shop data must always come from the server, never
 // from a stale cache, since it's shared cash-tracking data.
-const CACHE_NAME = 'salon-cash-tracker-shell-v1';
+//
+// The app shell (index.html etc.) is network-first: every load tries
+// the network first so a deployed update shows up immediately, and
+// only falls back to the cached copy if the network is unreachable
+// (true offline use). A cache-first strategy here previously meant
+// every deploy was invisible until a *second* reload, because the
+// first reload would show the stale cached page while only updating
+// the cache in the background for next time.
+const CACHE_NAME = 'salon-cash-tracker-shell-v2';
 const SHELL_FILES = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -32,17 +40,14 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
