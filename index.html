@@ -314,6 +314,25 @@
 
   .confirm-box { padding: 20px; }
   .confirm-text { font-size: 14px; color: var(--text-muted); margin: 8px 0 18px; line-height: 1.5; }
+
+  /* ---------- Auth screen ---------- */
+  body.auth-mode .navbar { display: none; }
+  .auth-wrap { display: flex; justify-content: center; padding-top: 24px; }
+  .auth-card { width: 100%; max-width: 380px; padding: 24px 22px; }
+  .auth-title { font-size: 19px; font-weight: 700; margin: 0 0 16px; }
+  .auth-card .field-label:first-of-type { margin-top: 0; }
+  .auth-error {
+    background: var(--expense-soft); color: var(--expense); font-size: 13px;
+    padding: 10px 12px; border-radius: 10px; margin-bottom: 14px; line-height: 1.4;
+  }
+  .auth-links { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; text-align: center; }
+  .auth-links a { color: var(--accent); font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .auth-note { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px; }
+  .recovery-code {
+    font-family: 'Sora', system-ui, sans-serif; font-size: 22px; font-weight: 700;
+    letter-spacing: 0.04em; text-align: center; background: var(--surface-sunk);
+    border-radius: 10px; padding: 14px; margin: 6px 0 16px; word-break: break-all;
+  }
 </style>
 </head>
 <body>
@@ -393,7 +412,7 @@ const TRANSLATIONS = {
     toast_save_failed: "Couldn't save — storage may be full",
     confirm_delete_title: "Delete this entry?", confirm_delete_text: "This cannot be undone.",
     confirm_remove_worker_title: "Remove {name}?", confirm_remove_worker_text: "Past entries under this name are kept in history.",
-    confirm_reset_title: "Reset all data?", confirm_reset_text: "Every entry, worker, and your shop name will be permanently deleted.",
+    confirm_reset_title: "Clear all entries?", confirm_reset_text: "Every logged entry will be permanently deleted. Workers and settings are kept.",
     range_week: "7 days", range_month: "30 days", range_all: "All time",
     day_sub: "{income} in · {expense} cash used · {shop} shop",
     report_header: "{shop} — cash report", report_range_label: "Range: {range}",
@@ -405,7 +424,7 @@ const TRANSLATIONS = {
     settings_workers: "Workers", placeholder_new_worker: "New worker name",
     settings_currency: "Currency", settings_language: "Language", settings_region: "Currency & language",
     settings_backup_title: "Back up all data", settings_backup_sub: "Copies every entry as text to paste into Notes, Sheets, etc.",
-    settings_reset_title: "Reset all data", settings_reset_sub: "Deletes every entry and worker. Cannot be undone."
+    settings_reset_title: "Clear all entries", settings_reset_sub: "Deletes every logged entry. Cannot be undone."
   },
   hi: {
     nav_today: "आज", nav_history: "इतिहास", nav_settings: "सेटिंग्स",
@@ -434,7 +453,7 @@ const TRANSLATIONS = {
     toast_save_failed: "सेव नहीं हो सका — स्टोरेज भरा हो सकता है",
     confirm_delete_title: "यह एंट्री हटाएं?", confirm_delete_text: "इसे वापस नहीं किया जा सकता।",
     confirm_remove_worker_title: "{name} को हटाएं?", confirm_remove_worker_text: "इस नाम के पुराने रिकॉर्ड इतिहास में बने रहेंगे।",
-    confirm_reset_title: "सभी डेटा रीसेट करें?", confirm_reset_text: "हर एंट्री, कर्मचारी और दुकान का नाम हमेशा के लिए मिट जाएगा।",
+    confirm_reset_title: "सभी एंट्री हटाएं?", confirm_reset_text: "हर दर्ज एंट्री हमेशा के लिए मिट जाएगी। कर्मचारी और सेटिंग्स सुरक्षित रहेंगी।",
     range_week: "7 दिन", range_month: "30 दिन", range_all: "सभी समय",
     day_sub: "{income} आया · {expense} नकद उपयोग · {shop} दुकान खर्च",
     report_header: "{shop} — नकद रिपोर्ट", report_range_label: "अवधि: {range}",
@@ -446,7 +465,7 @@ const TRANSLATIONS = {
     settings_workers: "कर्मचारी", placeholder_new_worker: "नए कर्मचारी का नाम",
     settings_currency: "मुद्रा", settings_language: "भाषा", settings_region: "मुद्रा और भाषा",
     settings_backup_title: "सभी डेटा का बैकअप लें", settings_backup_sub: "हर एंट्री को टेक्स्ट के रूप में कॉपी करता है — Notes, Sheets आदि में पेस्ट करें।",
-    settings_reset_title: "सभी डेटा रीसेट करें", settings_reset_sub: "हर एंट्री और कर्मचारी मिटा देता है। वापस नहीं लिया जा सकता।"
+    settings_reset_title: "सभी एंट्री हटाएं", settings_reset_sub: "हर दर्ज एंट्री मिटा देता है। वापस नहीं लिया जा सकता।"
   },
   ar: {
     nav_today: "اليوم", nav_history: "السجل", nav_settings: "الإعدادات",
@@ -475,7 +494,7 @@ const TRANSLATIONS = {
     toast_save_failed: "تعذر الحفظ — قد تكون مساحة التخزين ممتلئة",
     confirm_delete_title: "حذف هذا الإدخال؟", confirm_delete_text: "لا يمكن التراجع عن هذا.",
     confirm_remove_worker_title: "إزالة {name}؟", confirm_remove_worker_text: "ستبقى الإدخالات السابقة بهذا الاسم في السجل.",
-    confirm_reset_title: "إعادة تعيين جميع البيانات؟", confirm_reset_text: "سيتم حذف كل إدخال وعامل واسم المحل نهائيًا.",
+    confirm_reset_title: "حذف جميع الإدخالات؟", confirm_reset_text: "سيتم حذف كل إدخال مسجل نهائيًا. ستبقى بيانات العمال والإعدادات كما هي.",
     range_week: "7 أيام", range_month: "30 يومًا", range_all: "كل الوقت",
     day_sub: "{income} تحصيل · {expense} نقد مستخدم · {shop} مصاريف محل",
     report_header: "{shop} — تقرير النقد", report_range_label: "الفترة: {range}",
@@ -487,7 +506,7 @@ const TRANSLATIONS = {
     settings_workers: "العمال", placeholder_new_worker: "اسم عامل جديد",
     settings_currency: "العملة", settings_language: "اللغة", settings_region: "العملة واللغة",
     settings_backup_title: "نسخ احتياطي لجميع البيانات", settings_backup_sub: "ينسخ كل إدخال كنص للصقه في Notes أو Sheets وغيرها.",
-    settings_reset_title: "إعادة تعيين جميع البيانات", settings_reset_sub: "يحذف كل إدخال وعامل. لا يمكن التراجع عن هذا."
+    settings_reset_title: "حذف جميع الإدخالات", settings_reset_sub: "يحذف كل إدخال مسجل. لا يمكن التراجع عن هذا."
   },
   bn: {
     nav_today: "আজ", nav_history: "ইতিহাস", nav_settings: "সেটিংস",
@@ -516,7 +535,7 @@ const TRANSLATIONS = {
     toast_save_failed: "সেভ করা যায়নি — স্টোরেজ পূর্ণ হতে পারে",
     confirm_delete_title: "এই এন্ট্রি মুছবেন?", confirm_delete_text: "এটি পূর্বাবস্থায় ফেরানো যাবে না।",
     confirm_remove_worker_title: "{name} কে বাদ দিবেন?", confirm_remove_worker_text: "এই নামে পুরনো রেকর্ড ইতিহাসে থাকবে।",
-    confirm_reset_title: "সব ডেটা রিসেট করবেন?", confirm_reset_text: "প্রতিটি এন্ট্রি, কর্মী এবং দোকানের নাম স্থায়ীভাবে মুছে যাবে।",
+    confirm_reset_title: "সব এন্ট্রি মুছবেন?", confirm_reset_text: "প্রতিটি লগ করা এন্ট্রি স্থায়ীভাবে মুছে যাবে। কর্মী ও সেটিংস থেকে যাবে।",
     range_week: "৭ দিন", range_month: "৩০ দিন", range_all: "সব সময়",
     day_sub: "{income} এসেছে · {expense} নগদ ব্যবহার · {shop} দোকানের খরচ",
     report_header: "{shop} — ক্যাশ রিপোর্ট", report_range_label: "সময়কাল: {range}",
@@ -528,7 +547,7 @@ const TRANSLATIONS = {
     settings_workers: "কর্মীরা", placeholder_new_worker: "নতুন কর্মীর নাম",
     settings_currency: "মুদ্রা", settings_language: "ভাষা", settings_region: "মুদ্রা ও ভাষা",
     settings_backup_title: "সব ডেটা ব্যাকআপ করুন", settings_backup_sub: "প্রতিটি এন্ট্রি টেক্সট হিসেবে কপি করে — Notes, Sheets ইত্যাদিতে পেস্ট করুন।",
-    settings_reset_title: "সব ডেটা রিসেট করুন", settings_reset_sub: "প্রতিটি এন্ট্রি ও কর্মী মুছে যাবে। পূর্বাবস্থায় ফেরানো যাবে না।"
+    settings_reset_title: "সব এন্ট্রি মুছুন", settings_reset_sub: "প্রতিটি লগ করা এন্ট্রি মুছে যায়। পূর্বাবস্থায় ফেরানো যাবে না।"
   },
   ur: {
     nav_today: "آج", nav_history: "تاریخ", nav_settings: "ترتیبات",
@@ -557,7 +576,7 @@ const TRANSLATIONS = {
     toast_save_failed: "محفوظ نہیں ہو سکا — اسٹوریج بھرا ہو سکتا ہے",
     confirm_delete_title: "یہ اندراج حذف کریں؟", confirm_delete_text: "اسے واپس نہیں لایا جا سکتا۔",
     confirm_remove_worker_title: "{name} کو ہٹائیں؟", confirm_remove_worker_text: "اس نام کے پرانے ریکارڈ تاریخ میں رہیں گے۔",
-    confirm_reset_title: "تمام ڈیٹا ری سیٹ کریں؟", confirm_reset_text: "ہر اندراج، کارکن اور دکان کا نام ہمیشہ کے لیے حذف ہو جائے گا۔",
+    confirm_reset_title: "تمام اندراجات حذف کریں؟", confirm_reset_text: "ہر درج شدہ اندراج ہمیشہ کے لیے حذف ہو جائے گا۔ کارکن اور ترتیبات محفوظ رہیں گی۔",
     range_week: "7 دن", range_month: "30 دن", range_all: "تمام وقت",
     day_sub: "{income} آیا · {expense} نقدی استعمال · {shop} دکان کا خرچ",
     report_header: "{shop} — نقدی رپورٹ", report_range_label: "مدت: {range}",
@@ -569,7 +588,7 @@ const TRANSLATIONS = {
     settings_workers: "کارکن", placeholder_new_worker: "نئے کارکن کا نام",
     settings_currency: "کرنسی", settings_language: "زبان", settings_region: "کرنسی اور زبان",
     settings_backup_title: "تمام ڈیٹا کا بیک اپ لیں", settings_backup_sub: "ہر اندراج کو ٹیکسٹ کے طور پر کاپی کرتا ہے — Notes، Sheets وغیرہ میں پیسٹ کریں۔",
-    settings_reset_title: "تمام ڈیٹا ری سیٹ کریں", settings_reset_sub: "ہر اندراج اور کارکن حذف ہو جائے گا۔ واپس نہیں لایا جا سکتا۔"
+    settings_reset_title: "تمام اندراجات حذف کریں", settings_reset_sub: "ہر درج شدہ اندراج حذف ہو جاتا ہے۔ واپس نہیں لایا جا سکتا۔"
   },
   te: {
     nav_today: "ఈరోజు", nav_history: "చరిత్ర", nav_settings: "సెట్టింగ్స్",
@@ -598,7 +617,7 @@ const TRANSLATIONS = {
     toast_save_failed: "సేవ్ చేయలేకపోయాం — నిల్వ నిండి ఉండవచ్చు",
     confirm_delete_title: "ఈ ఎంట్రీని తొలగించాలా?", confirm_delete_text: "దీన్ని వెనక్కి తీసుకోలేము.",
     confirm_remove_worker_title: "{name}ని తొలగించాలా?", confirm_remove_worker_text: "ఈ పేరు కింద గత ఎంట్రీలు చరిత్రలో ఉంటాయి.",
-    confirm_reset_title: "మొత్తం డేటా రీసెట్ చేయాలా?", confirm_reset_text: "ప్రతి ఎంట్రీ, కార్మికుడు మరియు దుకాణ పేరు శాశ్వతంగా తొలగించబడతాయి.",
+    confirm_reset_title: "అన్ని ఎంట్రీలు తొలగించాలా?", confirm_reset_text: "నమోదు చేసిన ప్రతి ఎంట్రీ శాశ్వతంగా తొలగించబడుతుంది. కార్మికులు, సెట్టింగ్‌లు అలాగే ఉంటాయి.",
     range_week: "7 రోజులు", range_month: "30 రోజులు", range_all: "అన్ని సమయాలు",
     day_sub: "{income} వచ్చింది · {expense} నగదు వాడకం · {shop} దుకాణ ఖర్చు",
     report_header: "{shop} — నగదు రిపోర్ట్", report_range_label: "కాలం: {range}",
@@ -610,7 +629,7 @@ const TRANSLATIONS = {
     settings_workers: "కార్మికులు", placeholder_new_worker: "కొత్త కార్మికుడి పేరు",
     settings_currency: "కరెన్సీ", settings_language: "భాష", settings_region: "కరెన్సీ & భాష",
     settings_backup_title: "మొత్తం డేటా బ్యాకప్ చేయి", settings_backup_sub: "ప్రతి ఎంట్రీని టెక్స్ట్‌గా కాపీ చేస్తుంది — Notes, Sheets వంటి వాటిలో పేస్ట్ చేయండి.",
-    settings_reset_title: "మొత్తం డేటా రీసెట్ చేయి", settings_reset_sub: "ప్రతి ఎంట్రీ, కార్మికుడు తొలగించబడతారు. వెనక్కి తీసుకోలేము."
+    settings_reset_title: "అన్ని ఎంట్రీలు తొలగించు", settings_reset_sub: "నమోదు చేసిన ప్రతి ఎంట్రీ తొలగించబడుతుంది. వెనక్కి తీసుకోలేము."
   }
 };
 
@@ -624,8 +643,6 @@ function t(key, vars) {
 }
 
 /* ============ State ============ */
-const STORAGE_KEY = 'salonCashTracker_v1';
-
 function defaultState() {
   return {
     shopName: 'Salon',
@@ -636,27 +653,85 @@ function defaultState() {
   };
 }
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    if (!parsed || !Array.isArray(parsed.entries) || !Array.isArray(parsed.workers)) return defaultState();
-    if (!parsed.currency) parsed.currency = 'USD';
-    if (!parsed.language) parsed.language = 'en';
-    return parsed;
-  } catch (e) {
-    return defaultState();
-  }
+function normalizeState(data) {
+  const base = defaultState();
+  if (!data || typeof data !== 'object') return base;
+  return {
+    shopName: data.shopName || base.shopName,
+    currency: data.currency || base.currency,
+    language: data.language || base.language,
+    workers: Array.isArray(data.workers) ? data.workers : base.workers,
+    entries: Array.isArray(data.entries) ? data.entries : base.entries
+  };
 }
 
-let state = loadState();
+let state = defaultState();
 
-function saveState() {
+/* ============ Auth / API ============ */
+const API_BASE = '/api';
+let authToken = localStorage.getItem('scToken');
+let authShopCode = localStorage.getItem('scShopCode');
+let authView = authToken ? null : 'login'; // 'login' | 'signup' | 'forgot' | 'recovery-shown' | null (authed)
+let authBusy = false;
+let authError = '';
+let lastRecoveryCode = null;
+
+function setAuth(shopCode, token) {
+  authShopCode = shopCode;
+  authToken = token;
+  localStorage.setItem('scShopCode', shopCode);
+  localStorage.setItem('scToken', token);
+}
+function clearAuth() {
+  authShopCode = null;
+  authToken = null;
+  localStorage.removeItem('scShopCode');
+  localStorage.removeItem('scToken');
+}
+
+async function apiCall(path, options) {
+  options = options || {};
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  let res;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    res = await fetch(API_BASE + path, Object.assign({}, options, { headers }));
   } catch (e) {
-    showToast(t('toast_save_failed'));
+    const err = new Error('Network error — check your connection and try again.');
+    err.status = 0;
+    throw err;
+  }
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const err = new Error((data && data.error) || ('Request failed (' + res.status + ')'));
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+async function boot() {
+  if (!authToken) {
+    authView = 'login';
+    renderApp();
+    return;
+  }
+  try {
+    const data = await apiCall('/state', { method: 'GET' });
+    state = normalizeState(data);
+    authView = null;
+    renderApp();
+  } catch (e) {
+    if (e.status === 401) {
+      clearAuth();
+      authView = 'login';
+      authError = '';
+    } else {
+      authView = 'login';
+      authError = e.message || 'Could not reach the server.';
+    }
+    renderApp();
   }
 }
 
@@ -748,7 +823,22 @@ function goTo(view) {
 window.addEventListener('hashchange', render);
 
 /* ============ Render root ============ */
+function renderApp() {
+  document.body.classList.toggle('auth-mode', !!authView);
+  if (authView) {
+    document.documentElement.lang = 'en';
+    document.documentElement.dir = 'ltr';
+    document.getElementById('shopNameDisplay').textContent = 'Salon';
+    document.getElementById('dateDisplay').textContent = '';
+    document.getElementById('main').innerHTML = renderAuthScreen();
+    wireAuthScreen();
+    return;
+  }
+  render();
+}
+
 function render() {
+  if (authView) return;
   const view = currentView();
 
   document.documentElement.lang = state.language;
@@ -949,7 +1039,7 @@ function openEntrySheet(type) {
   amtInput.addEventListener('blur', () => amtWrap.classList.remove('focused'));
   setTimeout(() => amtInput.focus(), 50);
 
-  document.getElementById('saveEntryBtn').addEventListener('click', () => {
+  document.getElementById('saveEntryBtn').addEventListener('click', async () => {
     const raw = amtInput.value.trim();
     const amount = parseFloat(raw);
     if (!raw || isNaN(amount) || amount <= 0) {
@@ -963,19 +1053,26 @@ function openEntrySheet(type) {
       return;
     }
     const note = document.getElementById('noteInput').value.trim();
-    state.entries.push({
-      id: uid(),
+    const payload = {
       date: todayStr(),
       time: nowTime(),
       worker: selectedWorker,
       type,
       amount: Math.round(amount * 100) / 100,
       note
-    });
-    saveState();
-    closeSheet();
-    render();
-    showToast(type === 'income' ? t('toast_collection_added') : type === 'shopexpense' ? t('toast_shop_added') : t('toast_cash_added'));
+    };
+    const saveBtn = document.getElementById('saveEntryBtn');
+    saveBtn.disabled = true;
+    try {
+      const entry = await apiCall('/entries', { method: 'POST', body: JSON.stringify(payload) });
+      state.entries.push(entry);
+      closeSheet();
+      render();
+      showToast(type === 'income' ? t('toast_collection_added') : type === 'shopexpense' ? t('toast_shop_added') : t('toast_cash_added'));
+    } catch (e) {
+      saveBtn.disabled = false;
+      showToast(e.message || t('toast_save_failed'));
+    }
   });
 
   document.getElementById('entryOverlay').addEventListener('click', (ev) => {
@@ -987,11 +1084,15 @@ function closeSheet() {
 }
 
 function confirmDeleteEntry(id) {
-  openConfirm(t('confirm_delete_title'), t('confirm_delete_text'), () => {
-    state.entries = state.entries.filter(e => e.id !== id);
-    saveState();
-    render();
-    showToast(t('toast_entry_deleted'));
+  openConfirm(t('confirm_delete_title'), t('confirm_delete_text'), async () => {
+    try {
+      await apiCall('/entries/' + encodeURIComponent(id), { method: 'DELETE' });
+      state.entries = state.entries.filter(e => e.id !== id);
+      render();
+      showToast(t('toast_entry_deleted'));
+    } catch (e) {
+      showToast(e.message || t('toast_save_failed'));
+    }
   });
 }
 
@@ -1180,33 +1281,70 @@ function renderSettings() {
         <button class="btn ghost" style="flex:none;padding:10px 14px;color:var(--expense);" id="resetBtn">${t('btn_reset')}</button>
       </div>
     </div>
+
+    <div class="section-label">Account</div>
+    <div class="card">
+      <div class="settings-row">
+        <div>
+          <div style="font-weight:600;font-size:14px;">Shop code</div>
+          <div class="day-sub">${escapeHtml(authShopCode || '')} — use this to log in on another device</div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div style="font-weight:600;font-size:14px;">Log out of this device</div>
+        <button class="btn ghost" style="flex:none;padding:10px 14px;" id="logoutBtn">Log out</button>
+      </div>
+    </div>
   `;
 }
 
+async function syncWorkers() {
+  try {
+    await apiCall('/workers', { method: 'PUT', body: JSON.stringify({ workers: state.workers }) });
+  } catch (e) {
+    showToast(e.message || t('toast_save_failed'));
+  }
+}
+
 function wireSettings() {
-  document.getElementById('shopNameInput').addEventListener('change', (e) => {
-    state.shopName = e.target.value.trim() || 'Salon';
-    saveState();
+  document.getElementById('shopNameInput').addEventListener('change', async (e) => {
+    const val = e.target.value.trim() || 'Salon';
+    state.shopName = val;
     render();
+    try {
+      await apiCall('/settings', { method: 'PUT', body: JSON.stringify({ shopName: val }) });
+    } catch (err) {
+      showToast(err.message || t('toast_save_failed'));
+    }
   });
 
-  document.getElementById('currencySelect').addEventListener('change', (e) => {
-    state.currency = e.target.value;
-    saveState();
+  document.getElementById('currencySelect').addEventListener('change', async (e) => {
+    const val = e.target.value;
+    state.currency = val;
     render();
+    try {
+      await apiCall('/settings', { method: 'PUT', body: JSON.stringify({ currency: val }) });
+    } catch (err) {
+      showToast(err.message || t('toast_save_failed'));
+    }
   });
 
-  document.getElementById('languageSelect').addEventListener('change', (e) => {
-    state.language = e.target.value;
-    saveState();
+  document.getElementById('languageSelect').addEventListener('change', async (e) => {
+    const val = e.target.value;
+    state.language = val;
     render();
+    try {
+      await apiCall('/settings', { method: 'PUT', body: JSON.stringify({ language: val }) });
+    } catch (err) {
+      showToast(err.message || t('toast_save_failed'));
+    }
   });
 
   document.querySelectorAll('[data-role="worker-name"]').forEach(input => {
     input.addEventListener('change', (e) => {
       const idx = Number(e.target.dataset.idx);
       const val = e.target.value.trim();
-      if (val) { state.workers[idx] = val; saveState(); }
+      if (val) { state.workers[idx] = val; syncWorkers(); }
       else render();
     });
   });
@@ -1217,8 +1355,8 @@ function wireSettings() {
       const name = state.workers[idx];
       openConfirm(t('confirm_remove_worker_title', { name }), t('confirm_remove_worker_text'), () => {
         state.workers.splice(idx, 1);
-        saveState();
         render();
+        syncWorkers();
       });
     });
   });
@@ -1228,8 +1366,8 @@ function wireSettings() {
     const val = input.value.trim();
     if (!val) { showToast(t('toast_enter_name')); return; }
     state.workers.push(val);
-    saveState();
     render();
+    syncWorkers();
   });
 
   document.getElementById('backupBtn').addEventListener('click', () => {
@@ -1240,20 +1378,201 @@ function wireSettings() {
   });
 
   document.getElementById('resetBtn').addEventListener('click', () => {
-    openConfirm(t('confirm_reset_title'), t('confirm_reset_text'), () => {
-      const keepCurrency = state.currency, keepLanguage = state.language;
+    openConfirm(t('confirm_reset_title'), t('confirm_reset_text'), async () => {
+      try {
+        await apiCall('/entries', { method: 'DELETE' });
+        state.entries = [];
+        render();
+        showToast(t('toast_data_reset'));
+      } catch (err) {
+        showToast(err.message || t('toast_save_failed'));
+      }
+    });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    openConfirm('Log out?', 'You will need the shop code and PIN to log back in on this device.', async () => {
+      try { await apiCall('/logout', { method: 'POST' }); } catch (e) {}
+      clearAuth();
       state = defaultState();
-      state.currency = keepCurrency;
-      state.language = keepLanguage;
-      saveState();
-      render();
-      showToast(t('toast_data_reset'));
+      authView = 'login';
+      authError = '';
+      renderApp();
     });
   });
 }
 
+/* ============ Auth screens ============ */
+function renderAuthScreen() {
+  if (authView === 'signup') return renderSignupView();
+  if (authView === 'forgot') return renderForgotView();
+  if (authView === 'recovery-shown') return renderRecoveryShownView();
+  return renderLoginView();
+}
+
+function renderLoginView() {
+  return `
+    <div class="auth-wrap">
+      <div class="card auth-card">
+        <h2 class="auth-title">Shop login</h2>
+        ${authError ? `<div class="auth-error">${escapeHtml(authError)}</div>` : ''}
+        <div class="field-label">Shop code</div>
+        <input class="text-input" id="authShopCode" placeholder="e.g. AB12CD" autocapitalize="characters" autocomplete="off">
+        <div class="field-label">PIN</div>
+        <input class="text-input" id="authPin" type="password" inputmode="numeric" placeholder="4–8 digit PIN" autocomplete="off">
+        <button class="btn primary" style="width:100%;margin-top:16px;" id="authSubmitBtn" ${authBusy ? 'disabled' : ''}>${authBusy ? 'Please wait…' : 'Log in'}</button>
+        <div class="auth-links">
+          <a id="gotoSignup">Set up this shop</a>
+          <a id="gotoForgot">Forgot PIN?</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSignupView() {
+  return `
+    <div class="auth-wrap">
+      <div class="card auth-card">
+        <h2 class="auth-title">Set up your shop</h2>
+        ${authError ? `<div class="auth-error">${escapeHtml(authError)}</div>` : ''}
+        <div class="field-label">Shop name</div>
+        <input class="text-input" id="authShopName" placeholder="e.g. Chandu's Salon" autocomplete="off">
+        <div class="field-label">Choose a PIN (4–8 digits)</div>
+        <input class="text-input" id="authNewPin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="off">
+        <button class="btn primary" style="width:100%;margin-top:16px;" id="authSubmitBtn" ${authBusy ? 'disabled' : ''}>${authBusy ? 'Please wait…' : 'Create shop account'}</button>
+        <div class="auth-links">
+          <a id="gotoLogin">Already have a shop code? Log in</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderForgotView() {
+  return `
+    <div class="auth-wrap">
+      <div class="card auth-card">
+        <h2 class="auth-title">Reset PIN</h2>
+        ${authError ? `<div class="auth-error">${escapeHtml(authError)}</div>` : ''}
+        <div class="field-label">Shop code</div>
+        <input class="text-input" id="authShopCode" placeholder="Shop code" autocapitalize="characters" autocomplete="off">
+        <div class="field-label">Recovery code</div>
+        <input class="text-input" id="authRecoveryCode" placeholder="From when you set up this shop" autocomplete="off">
+        <div class="field-label">New PIN (4–8 digits)</div>
+        <input class="text-input" id="authNewPin" type="password" inputmode="numeric" placeholder="New PIN" autocomplete="off">
+        <button class="btn primary" style="width:100%;margin-top:16px;" id="authSubmitBtn" ${authBusy ? 'disabled' : ''}>${authBusy ? 'Please wait…' : 'Reset PIN'}</button>
+        <div class="auth-links">
+          <a id="gotoLogin">Back to log in</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRecoveryShownView() {
+  return `
+    <div class="auth-wrap">
+      <div class="card auth-card">
+        <h2 class="auth-title">Save your recovery code</h2>
+        <p class="auth-note">Write this down somewhere safe — a notebook, a note on the owner's phone. If this shop ever forgets its PIN, this code is the only way back in. We can't recover it for you.</p>
+        <div class="recovery-code">${escapeHtml(lastRecoveryCode || '')}</div>
+        <div class="field-label">Shop code (used to log in on any device)</div>
+        <div class="recovery-code" style="font-size:18px;">${escapeHtml(authShopCode || '')}</div>
+        <button class="btn primary" style="width:100%;margin-top:16px;" id="authContinueBtn">I've saved it — continue</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireAuthScreen() {
+  const submitBtn = document.getElementById('authSubmitBtn');
+  if (submitBtn) submitBtn.addEventListener('click', handleAuthSubmit);
+
+  const gotoSignup = document.getElementById('gotoSignup');
+  if (gotoSignup) gotoSignup.addEventListener('click', () => { authView = 'signup'; authError = ''; renderApp(); });
+
+  const gotoForgot = document.getElementById('gotoForgot');
+  if (gotoForgot) gotoForgot.addEventListener('click', () => { authView = 'forgot'; authError = ''; renderApp(); });
+
+  const gotoLogin = document.getElementById('gotoLogin');
+  if (gotoLogin) gotoLogin.addEventListener('click', () => { authView = 'login'; authError = ''; renderApp(); });
+
+  const continueBtn = document.getElementById('authContinueBtn');
+  if (continueBtn) continueBtn.addEventListener('click', () => { authView = null; lastRecoveryCode = null; boot(); });
+
+  document.querySelectorAll('.auth-card input').forEach((inp) => {
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuthSubmit(); });
+  });
+}
+
+async function handleAuthSubmit() {
+  if (authBusy) return;
+  authError = '';
+
+  if (authView === 'login') {
+    const shopCode = (document.getElementById('authShopCode').value || '').trim().toUpperCase();
+    const pin = (document.getElementById('authPin').value || '').trim();
+    if (!shopCode || !pin) { authError = 'Enter your shop code and PIN.'; renderApp(); return; }
+    authBusy = true; renderApp();
+    try {
+      const data = await apiCall('/login', { method: 'POST', body: JSON.stringify({ shopCode, pin }) });
+      setAuth(data.shopCode, data.token);
+      authBusy = false;
+      await boot();
+    } catch (e) {
+      authBusy = false;
+      authError = e.message || 'Login failed.';
+      renderApp();
+    }
+    return;
+  }
+
+  if (authView === 'signup') {
+    const shopName = (document.getElementById('authShopName').value || '').trim();
+    const pin = (document.getElementById('authNewPin').value || '').trim();
+    if (!shopName) { authError = 'Enter a shop name.'; renderApp(); return; }
+    if (!/^[0-9]{4,8}$/.test(pin)) { authError = 'PIN must be 4-8 digits.'; renderApp(); return; }
+    authBusy = true; renderApp();
+    try {
+      const data = await apiCall('/signup', { method: 'POST', body: JSON.stringify({ shopName, pin }) });
+      setAuth(data.shopCode, data.token);
+      lastRecoveryCode = data.recoveryCode;
+      authBusy = false;
+      authView = 'recovery-shown';
+      renderApp();
+    } catch (e) {
+      authBusy = false;
+      authError = e.message || 'Could not create shop account.';
+      renderApp();
+    }
+    return;
+  }
+
+  if (authView === 'forgot') {
+    const shopCode = (document.getElementById('authShopCode').value || '').trim().toUpperCase();
+    const recoveryCode = (document.getElementById('authRecoveryCode').value || '').trim();
+    const newPin = (document.getElementById('authNewPin').value || '').trim();
+    if (!shopCode || !recoveryCode || !/^[0-9]{4,8}$/.test(newPin)) { authError = 'Fill in all fields; PIN must be 4-8 digits.'; renderApp(); return; }
+    authBusy = true; renderApp();
+    try {
+      await apiCall('/reset-pin', { method: 'POST', body: JSON.stringify({ shopCode, recoveryCode, newPin }) });
+      authBusy = false;
+      authView = 'login';
+      authError = '';
+      renderApp();
+      showToast('PIN reset — log in with your new PIN.');
+    } catch (e) {
+      authBusy = false;
+      authError = e.message || 'Could not reset PIN.';
+      renderApp();
+    }
+    return;
+  }
+}
+
 /* ============ Init ============ */
-render();
+boot();
 </script>
 </body>
 </html>
