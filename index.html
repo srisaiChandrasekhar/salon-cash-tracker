@@ -384,6 +384,27 @@ const LANGUAGES = {
   te: { label: 'తెలుగు (Telugu)', locale: 'te-IN', dir: 'ltr' }
 };
 
+// Best-guess currency/language from the browser's own locale, used only to
+// pre-fill a sensible default for a brand-new shop at signup. The owner can
+// always change both later in Settings.
+function detectDefaultsFromLocale() {
+  const locales = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en-US']);
+  const loc = (locales[0] || 'en-US').toLowerCase();
+  const [langPart, regionPart] = loc.split('-');
+
+  // Currency follows region (where the shop physically is), not language —
+  // an en-IN browser is still an Indian shop and should default to INR.
+  const REGION_CURRENCY = { in: 'INR', sa: 'SAR', bd: 'BDT', pk: 'PKR' };
+  const currency = REGION_CURRENCY[regionPart] || 'USD';
+
+  // Language follows the browser's language tag, but only to a language we
+  // actually support — otherwise fall back to English rather than guessing.
+  const SUPPORTED_LANGS = { hi: 'hi', te: 'te', ar: 'ar', bn: 'bn', ur: 'ur', en: 'en' };
+  const language = SUPPORTED_LANGS[langPart] || 'en';
+
+  return { currency, language };
+}
+
 const TRANSLATIONS = {
   en: {
     nav_today: "Today", nav_history: "History", nav_settings: "Settings",
@@ -1538,7 +1559,8 @@ async function handleAuthSubmit() {
     if (!/^[0-9]{4,8}$/.test(pin)) { authError = 'PIN must be 4-8 digits.'; renderApp(); return; }
     authBusy = true; renderApp();
     try {
-      const data = await apiCall('/signup', { method: 'POST', body: JSON.stringify({ shopName, pin }) });
+      const defaults = detectDefaultsFromLocale();
+      const data = await apiCall('/signup', { method: 'POST', body: JSON.stringify({ shopName, pin, currency: defaults.currency, language: defaults.language }) });
       setAuth(data.shopCode, data.token);
       lastRecoveryCode = data.recoveryCode;
       authBusy = false;

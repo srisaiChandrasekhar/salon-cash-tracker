@@ -26,6 +26,15 @@ app.http("signup", {
     const shopName = String(body.shopName || "").trim().slice(0, 60);
     const pin = String(body.pin || "").trim();
 
+    // Client sends its best guess at currency/language from the browser's
+    // own locale (e.g. a shop opening the app in India defaults to INR).
+    // Validate against the supported sets and fall back to USD/en rather
+    // than trusting arbitrary client input.
+    const VALID_CURRENCIES = ["USD", "INR", "SAR", "BDT", "PKR"];
+    const VALID_LANGUAGES = ["en", "hi", "ar", "bn", "ur", "te"];
+    const currency = VALID_CURRENCIES.includes(body.currency) ? body.currency : "USD";
+    const language = VALID_LANGUAGES.includes(body.language) ? body.language : "en";
+
     if (!shopName) {
       return { status: 400, jsonBody: { error: "Shop name is required" } };
     }
@@ -68,8 +77,8 @@ app.http("signup", {
 
     await writeShopState(shopCode, {
       shopName,
-      currency: "USD",
-      language: "en",
+      currency,
+      language,
       workers: ["Worker 1", "Worker 2", "Worker 3"],
       entries: []
     });
