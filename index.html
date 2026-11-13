@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Salon Daily Cash Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Devanagari:wght@500;600;700&family=Noto+Sans+Arabic:wght@500;600;700&family=Noto+Sans+Bengali:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3f1;
+    --surface: #ffffff;
+    --surface-sunk: #efeae7;
+    --text: #221d1f;
+    --text-muted: #746c6f;
+    --border: #e3dcda;
+    --accent: #7c2d3c;
+    --accent-soft: #f4e2e6;
+    --accent-ink: #ffffff;
+    --income: #2f7a4f;
+    --income-soft: #e2f0e7;
+    --expense: #b4502f;
+    --expense-soft: #faeae3;
+    --shop: #3f5e78;
+    --shop-soft: #e3eaef;
+    --shadow: 0 1px 2px rgba(34,29,31,0.06), 0 6px 16px rgba(34,29,31,0.06);
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #181515;
+      --surface: #241f20;
+      --surface-sunk: #2c2628;
+      --text: #f2ece9;
+      --text-muted: #a89d9b;
+      --border: #3a3335;
+      --accent: #e08a9a;
+      --accent-soft: #3a262b;
+      --accent-ink: #221013;
+      --income: #7fd9a0;
+      --income-soft: #203329;
+      --expense: #f0a27c;
+      --expense-soft: #3a2a20;
+      --shop: #9bc2e0;
+      --shop-soft: #22323f;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #181515;
+    --surface: #241f20;
+    --surface-sunk: #2c2628;
+    --text: #f2ece9;
+    --text-muted: #a89d9b;
+    --border: #3a3335;
+    --accent: #e08a9a;
+    --accent-soft: #3a262b;
+    --accent-ink: #221013;
+    --income: #7fd9a0;
+    --income-soft: #203329;
+    --expense: #f0a27c;
+    --expense-soft: #3a2a20;
+    --shop: #9bc2e0;
+    --shop-soft: #22323f;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', 'Noto Sans Devanagari', 'Noto Sans Arabic', 'Noto Sans Bengali', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  h1, h2, h3, .num { font-family: 'Sora', system-ui, sans-serif; }
+  .num { font-variant-numeric: tabular-nums; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .shopname { font-size: 17px; font-weight: 700; }
+  .today-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ---------- Main scroll area ---------- */
+  .main {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 16px 16px 90px;
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  .navbar {
+    flex: 0 0 auto;
+    display: flex;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  .navbtn {
+    flex: 1;
+    border: none;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .navbtn svg { width: 22px; height: 22px; }
+  .navbtn.active { color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 20px 2px 8px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* Hero net tile */
+  .hero {
+    padding: 22px 20px;
+    text-align: center;
+  }
+  .hero .label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+  .hero .amount { font-size: 42px; font-weight: 800; margin-top: 4px; }
+  .hero .amount.neg { color: var(--expense); }
+  .hero .amount.pos { color: var(--income); }
+
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .tile { padding: 14px; border-radius: 12px; }
+  .tile.income { background: var(--income-soft); }
+  .tile.expense { background: var(--expense-soft); }
+  .tile.shop { background: var(--shop-soft); grid-column: 1 / -1; }
+  .tile .tlabel { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  .tile.income .tlabel { color: var(--income); }
+  .tile.expense .tlabel { color: var(--expense); }
+  .tile.shop .tlabel { color: var(--shop); }
+  .tile .tval { font-size: 22px; font-weight: 700; margin-top: 2px; }
+
+  /* worker rows */
+  .worker-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .worker-row:last-child { border-bottom: none; }
+  .worker-name { font-weight: 600; font-size: 14px; }
+  .worker-count { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .worker-amt { font-size: 17px; font-weight: 700; }
+
+  /* action buttons */
+  .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .bigbtn {
+    border: none;
+    border-radius: 12px;
+    padding: 16px 10px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .bigbtn.collect { background: var(--income); color: #ffffff; }
+  .bigbtn.spend { background: var(--expense); color: #ffffff; }
+  .bigbtn.shopbtn { background: var(--shop); color: #ffffff; grid-column: 1 / -1; }
+  .bigbtn svg { width: 22px; height: 22px; }
+
+  /* entry list */
+  .entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .entry:last-child { border-bottom: none; }
+  .entry-icon {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto; font-size: 15px; font-weight: 700;
+  }
+  .entry-icon.income { background: var(--income-soft); color: var(--income); }
+  .entry-icon.expense { background: var(--expense-soft); color: var(--expense); }
+  .entry-icon.shop { background: var(--shop-soft); color: var(--shop); }
+  .entry-body { flex: 1 1 auto; min-width: 0; }
+  .entry-title { font-size: 14px; font-weight: 600; }
+  .entry-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .entry-amt { font-size: 15px; font-weight: 700; flex: 0 0 auto; }
+  .entry-amt.income { color: var(--income); }
+  .entry-amt.expense { color: var(--expense); }
+  .entry-amt.shop { color: var(--shop); }
+  .entry-del {
+    flex: 0 0 auto; border: none; background: none; color: var(--text-muted);
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .entry-del:active { background: var(--surface-sunk); }
+
+  .empty-state { padding: 30px 16px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+  /* ---------- Modal ---------- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(20,16,17,0.45);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 50;
+  }
+  .sheet {
+    background: var(--surface);
+    width: 100%; max-width: 480px;
+    border-radius: 18px 18px 0 0;
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+  .sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  .field-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin: 14px 0 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1.5px solid var(--border); background: var(--surface);
+    border-radius: 999px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    color: var(--text); cursor: pointer;
+  }
+  .chip.selected { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .amount-input-wrap { display: flex; align-items: baseline; gap: 6px; border-bottom: 2px solid var(--border); padding: 6px 2px; }
+  .amount-input-wrap.focused { border-color: var(--accent); }
+  .currency-sym { font-size: 24px; font-weight: 700; color: var(--text-muted); }
+  .amount-input {
+    border: none; background: none; outline: none; font-size: 34px; font-weight: 800;
+    color: var(--text); width: 100%; font-family: 'Sora', sans-serif; font-variant-numeric: tabular-nums;
+  }
+  .text-input, .select-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 11px 12px; font-size: 14px; background: var(--surface); color: var(--text); outline: none;
+    font-family: inherit;
+  }
+  .text-input:focus, .select-input:focus { border-color: var(--accent); }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; border: none; border-radius: 10px; padding: 13px; font-weight: 700; font-size: 15px; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { background: var(--surface-sunk); color: var(--text); }
+  .btn:disabled { opacity: 0.45; }
+
+  /* history */
+  .range-tabs { display: flex; gap: 6px; background: var(--surface-sunk); border-radius: 10px; padding: 4px; margin-bottom: 14px; }
+  .range-tab { flex: 1; border: none; background: none; padding: 8px 4px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+  .range-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .day-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .day-row:last-child { border-bottom: none; }
+  .day-date { font-size: 14px; font-weight: 600; }
+  .day-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .day-net { font-size: 15px; font-weight: 700; }
+  .chev { color: var(--text-muted); font-size: 13px; margin-left: 8px; margin-right: 8px; }
+
+  /* settings */
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); gap: 10px; }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row.stack { flex-direction: column; align-items: stretch; }
+  .icon-btn { border: none; background: none; color: var(--text-muted); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .icon-btn:active { background: var(--surface-sunk); }
+  .add-worker-row { display: flex; gap: 8px; padding: 12px 14px; }
+
+  .toast {
+    position: fixed; bottom: 86px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; z-index: 80; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    max-width: 90%; text-align: center;
+  }
+  .toast.show { opacity: 1; }
+
+  .confirm-box { padding: 20px; }
+  .confirm-text { font-size: 14px; color: var(--text-muted); margin: 8px 0 18px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="shopname" id="shopNameDisplay">Salon</div>
+    <div class="today-date" id="dateDisplay"></div>
+  </div>
+  <div style="font-size:26px;">💈</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="navbar">
+  <button class="navbtn" data-view="today" onclick="goTo('today')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+    <span data-i18n="nav_today"></span>
+  </button>
+  <button class="navbtn" data-view="history" onclick="goTo('history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+    <span data-i18n="nav_history"></span>
+  </button>
+  <button class="navbtn" data-view="settings" onclick="goTo('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009.1 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9.1a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.14.41.43.76.82.97.39.22.83.3 1.26.22H21a2 2 0 110 4h-.09c-.43-.08-.87 0-1.26.22-.4.21-.69.56-.83.97z"/></svg>
+    <span data-i18n="nav_settings"></span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="overlayRoot"></div>
+
+<script>
+/* ============ i18n ============ */
+const CURRENCIES = {
+  USD: { symbol: '$', label: 'US Dollar ($) — USD' },
+  INR: { symbol: '₹', label: 'Indian Rupee (₹) — INR' },
+  SAR: { symbol: 'ر.س', label: 'Saudi Riyal (ر.س) — SAR' },
+  BDT: { symbol: '৳', label: 'Bangladeshi Taka (৳) — BDT' },
+  PKR: { symbol: 'Rs', label: 'Pakistani Rupee (Rs) — PKR' }
+};
+
+const LANGUAGES = {
+  en: { label: 'English', locale: 'en-US', dir: 'ltr' },
+  hi: { label: 'हिन्दी (Hindi — India)', locale: 'hi-IN', dir: 'ltr' },
+  ar: { label: 'العربية (Arabic — Saudi Arabia)', locale: 'ar-SA', dir: 'rtl' },
+  bn: { label: 'বাংলা (Bengali — Bangladesh)', locale: 'bn-BD', dir: 'ltr' },
+  ur: { label: 'اردو (Urdu — Pakistan)', locale: 'ur-PK', dir: 'rtl' }
+};
+
+const TRANSLATIONS = {
+  en: {
+    nav_today: "Today", nav_history: "History", nav_settings: "Settings",
+    today_net_label: "Net cash today", history_net_label: "Net for this range",
+    tile_collected: "Collected", tile_cash_used: "Cash used", tile_shop_expenses: "Shop expenses",
+    btn_add_collection: "Add Collection", btn_cash_used: "Cash Used", btn_shop_expense: "Shop Expense",
+    section_by_worker: "By worker", section_todays_entries: "Today's entries", section_days: "Days", section_data: "Data",
+    entries_count: "{count} entries",
+    empty_today: "No entries yet today. Tap a button below to add one.",
+    empty_no_workers: "No workers set up. Add some in Settings.",
+    empty_history: "No entries in this range yet.",
+    unassigned: "Unassigned", fallback_shop_expense: "Shop expense", fallback_cash_used: "Cash used",
+    logged_by: "logged by {name}",
+    sheet_title_income: "Add Collection", sheet_title_shop: "Add Shop Expense", sheet_title_cash: "Add Cash Used",
+    label_which_worker: "Which worker?", label_who_logged: "Who logged this? (optional)",
+    label_amount: "Amount", label_common_categories: "Common categories",
+    label_note_optional: "Note (optional)", label_what_for: "What for?",
+    placeholder_note_income: "e.g. haircut, tip", placeholder_note_shop: "e.g. rent, supplies", placeholder_note_cash: "e.g. lunch, change for till",
+    cat_rent: "Rent", cat_supplies: "Supplies", cat_utilities: "Utilities", cat_maintenance: "Maintenance", cat_other: "Other",
+    btn_cancel: "Cancel", btn_save: "Save", btn_delete: "Delete", btn_copy: "Copy", btn_add: "Add", btn_reset: "Reset", btn_copy_report: "Copy report",
+    toast_enter_amount: "Enter an amount greater than 0", toast_pick_worker: "Pick which worker this is for",
+    toast_collection_added: "Collection added", toast_shop_added: "Shop expense added", toast_cash_added: "Cash use added",
+    toast_entry_deleted: "Entry deleted", toast_enter_name: "Enter a name first",
+    toast_data_copied: "All data copied to clipboard", toast_data_reset: "All data reset",
+    toast_report_copied: "Report copied — paste it anywhere", toast_copy_failed: "Couldn't copy — select and copy manually",
+    toast_save_failed: "Couldn't save — storage may be full",
+    confirm_delete_title: "Delete this entry?", confirm_delete_text: "This cannot be undone.",
+    confirm_remove_worker_title: "Remove {name}?", confirm_remove_worker_text: "Past entries under this name are kept in history.",
+    confirm_reset_title: "Reset all data?", confirm_reset_text: "Every entry, worker, and your shop name will be permanently deleted.",
+    range_week: "7 days", range_month: "30 days", range_all: "All time",
+    day_sub: "{income} in · {expense} cash used · {shop} shop",
+    report_header: "{shop} — cash report", report_range_label: "Range: {range}",
+    report_range_week: "last 7 days", report_range_month: "last 30 days", report_range_all: "all time",
+    report_line: "{date} — collected {income}, cash used {expense}, shop expenses {shop}, net {net}",
+    report_total: "TOTAL — collected {income}, cash used {expense}, shop expenses {shop}, net {net}",
+    tag_shop: "[shop]", tag_cash: "[cash used]",
+    settings_shop_name: "Shop name", placeholder_shop_name: "Shop name",
+    settings_workers: "Workers", placeholder_new_worker: "New worker name",
+    settings_currency: "Currency", settings_language: "Language", settings_region: "Currency & language",
+    settings_backup_title: "Back up all data", settings_backup_sub: "Copies every entry as text to paste into Notes, Sheets, etc.",
+    settings_reset_title: "Reset all data", settings_reset_sub: "Deletes every entry and worker. Cannot be undone."
+  },
+  hi: {
+    nav_today: "आज", nav_history: "इतिहास", nav_settings: "सेटिंग्स",
+    today_net_label: "आज की नेट नकद", history_net_label: "इस अवधि की नेट राशि",
+    tile_collected: "जमा हुआ", tile_cash_used: "नकद उपयोग", tile_shop_expenses: "दुकान खर्च",
+    btn_add_collection: "कलेक्शन जोड़ें", btn_cash_used: "नकद उपयोग", btn_shop_expense: "दुकान खर्च",
+    section_by_worker: "कर्मचारी अनुसार", section_todays_entries: "आज की एंट्री", section_days: "दिन", section_data: "डेटा",
+    entries_count: "{count} एंट्री",
+    empty_today: "आज तक कोई एंट्री नहीं। नीचे बटन दबाकर जोड़ें।",
+    empty_no_workers: "कोई कर्मचारी सेट नहीं है। सेटिंग्स में जोड़ें।",
+    empty_history: "इस अवधि में कोई एंट्री नहीं।",
+    unassigned: "अनिर्धारित", fallback_shop_expense: "दुकान खर्च", fallback_cash_used: "नकद उपयोग",
+    logged_by: "{name} द्वारा दर्ज",
+    sheet_title_income: "कलेक्शन जोड़ें", sheet_title_shop: "दुकान खर्च जोड़ें", sheet_title_cash: "नकद उपयोग जोड़ें",
+    label_which_worker: "कौन सा कर्मचारी?", label_who_logged: "किसने दर्ज किया? (वैकल्पिक)",
+    label_amount: "राशि", label_common_categories: "सामान्य श्रेणियाँ",
+    label_note_optional: "नोट (वैकल्पिक)", label_what_for: "किसलिए?",
+    placeholder_note_income: "जैसे हेयरकट, टिप", placeholder_note_shop: "जैसे किराया, सामान", placeholder_note_cash: "जैसे लंच, टिल के लिए चेंज",
+    cat_rent: "किराया", cat_supplies: "सामान", cat_utilities: "बिजली/पानी", cat_maintenance: "मेंटेनेंस", cat_other: "अन्य",
+    btn_cancel: "रद्द करें", btn_save: "सेव करें", btn_delete: "डिलीट करें", btn_copy: "कॉपी करें", btn_add: "जोड़ें", btn_reset: "रीसेट करें", btn_copy_report: "रिपोर्ट कॉपी करें",
+    toast_enter_amount: "0 से अधिक राशि दर्ज करें", toast_pick_worker: "यह किस कर्मचारी के लिए है, चुनें",
+    toast_collection_added: "कलेक्शन जोड़ा गया", toast_shop_added: "दुकान खर्च जोड़ा गया", toast_cash_added: "नकद उपयोग जोड़ा गया",
+    toast_entry_deleted: "एंट्री हटाई गई", toast_enter_name: "पहले नाम दर्ज करें",
+    toast_data_copied: "सभी डेटा क्लिपबोर्ड पर कॉपी हो गया", toast_data_reset: "सभी डेटा रीसेट हो गया",
+    toast_report_copied: "रिपोर्ट कॉपी हो गई — कहीं भी पेस्ट करें", toast_copy_failed: "कॉपी नहीं हो सका — मैन्युअल रूप से चुनें और कॉपी करें",
+    toast_save_failed: "सेव नहीं हो सका — स्टोरेज भरा हो सकता है",
+    confirm_delete_title: "यह एंट्री हटाएं?", confirm_delete_text: "इसे वापस नहीं किया जा सकता।",
+    confirm_remove_worker_title: "{name} को हटाएं?", confirm_remove_worker_text: "इस नाम के पुराने रिकॉर्ड इतिहास में बने रहेंगे।",
+    confirm_reset_title: "सभी डेटा रीसेट करें?", confirm_reset_text: "हर एंट्री, कर्मचारी और दुकान का नाम हमेशा के लिए मिट जाएगा।",
+    range_week: "7 दिन", range_month: "30 दिन", range_all: "सभी समय",
+    day_sub: "{income} आया · {expense} नकद उपयोग · {shop} दुकान खर्च",
+    report_header: "{shop} — नकद रिपोर्ट", report_range_label: "अवधि: {range}",
+    report_range_week: "पिछले 7 दिन", report_range_month: "पिछले 30 दिन", report_range_all: "सभी समय",
+    report_line: "{date} — जमा {income}, नकद उपयोग {expense}, दुकान खर्च {shop}, नेट {net}",
+    report_total: "कुल — जमा {income}, नकद उपयोग {expense}, दुकान खर्च {shop}, नेट {net}",
+    tag_shop: "[दुकान]", tag_cash: "[नकद उपयोग]",
+    settings_shop_name: "दुकान का नाम", placeholder_shop_name: "दुकान का नाम",
+    settings_workers: "कर्मचारी", placeholder_new_worker: "नए कर्मचारी का नाम",
+    settings_currency: "मुद्रा", settings_language: "भाषा", settings_region: "मुद्रा और भाषा",
+    settings_backup_title: "सभी डेटा का बैकअप लें", settings_backup_sub: "हर एंट्री को टेक्स्ट के रूप में कॉपी करता है — Notes, Sheets आदि में पेस्ट करें।",
+    settings_reset_title: "सभी डेटा रीसेट करें", settings_reset_sub: "हर एंट्री और कर्मचारी मिटा देता है। वापस नहीं लिया जा सकता।"
+  },
+  ar: {
+    nav_today: "اليوم", nav_history: "السجل", nav_settings: "الإعدادات",
+    today_net_label: "صافي النقد اليوم", history_net_label: "صافي هذه الفترة",
+    tile_collected: "المحصّل", tile_cash_used: "النقد المستخدم", tile_shop_expenses: "مصاريف المحل",
+    btn_add_collection: "إضافة تحصيل", btn_cash_used: "نقد مستخدم", btn_shop_expense: "مصروف محل",
+    section_by_worker: "حسب العامل", section_todays_entries: "إدخالات اليوم", section_days: "الأيام", section_data: "البيانات",
+    entries_count: "{count} إدخال",
+    empty_today: "لا توجد إدخالات اليوم. اضغط على زر أدناه للإضافة.",
+    empty_no_workers: "لا يوجد عمال. أضف عمالاً في الإعدادات.",
+    empty_history: "لا توجد إدخالات في هذه الفترة.",
+    unassigned: "غير محدد", fallback_shop_expense: "مصروف محل", fallback_cash_used: "نقد مستخدم",
+    logged_by: "سجّله {name}",
+    sheet_title_income: "إضافة تحصيل", sheet_title_shop: "إضافة مصروف محل", sheet_title_cash: "إضافة نقد مستخدم",
+    label_which_worker: "أي عامل؟", label_who_logged: "من سجّل هذا؟ (اختياري)",
+    label_amount: "المبلغ", label_common_categories: "فئات شائعة",
+    label_note_optional: "ملاحظة (اختياري)", label_what_for: "لأي سبب؟",
+    placeholder_note_income: "مثال: قص شعر، بقشيش", placeholder_note_shop: "مثال: إيجار، مستلزمات", placeholder_note_cash: "مثال: غداء، فكة للصندوق",
+    cat_rent: "إيجار", cat_supplies: "مستلزمات", cat_utilities: "فواتير", cat_maintenance: "صيانة", cat_other: "أخرى",
+    btn_cancel: "إلغاء", btn_save: "حفظ", btn_delete: "حذف", btn_copy: "نسخ", btn_add: "إضافة", btn_reset: "إعادة تعيين", btn_copy_report: "نسخ التقرير",
+    toast_enter_amount: "أدخل مبلغًا أكبر من 0", toast_pick_worker: "اختر العامل المخصص لهذا",
+    toast_collection_added: "تمت إضافة التحصيل", toast_shop_added: "تمت إضافة مصروف المحل", toast_cash_added: "تمت إضافة النقد المستخدم",
+    toast_entry_deleted: "تم حذف الإدخال", toast_enter_name: "أدخل الاسم أولاً",
+    toast_data_copied: "تم نسخ جميع البيانات", toast_data_reset: "تمت إعادة تعيين جميع البيانات",
+    toast_report_copied: "تم نسخ التقرير — يمكنك لصقه في أي مكان", toast_copy_failed: "تعذر النسخ — حدد وانسخ يدويًا",
+    toast_save_failed: "تعذر الحفظ — قد تكون مساحة التخزين ممتلئة",
+    confirm_delete_title: "حذف هذا الإدخال؟", confirm_delete_text: "لا يمكن التراجع عن هذا.",
+    confirm_remove_worker_title: "إزالة {name}؟", confirm_remove_worker_text: "ستبقى الإدخالات السابقة بهذا الاسم في السجل.",
+    confirm_reset_title: "إعادة تعيين جميع البيانات؟", confirm_reset_text: "سيتم حذف كل إدخال وعامل واسم المحل نهائيًا.",
+    range_week: "7 أيام", range_month: "30 يومًا", range_all: "كل الوقت",
+    day_sub: "{income} تحصيل · {expense} نقد مستخدم · {shop} مصاريف محل",
+    report_header: "{shop} — تقرير النقد", report_range_label: "الفترة: {range}",
+    report_range_week: "آخر 7 أيام", report_range_month: "آخر 30 يومًا", report_range_all: "كل الوقت",
+    report_line: "{date} — تحصيل {income}، نقد مستخدم {expense}، مصاريف محل {shop}، صافي {net}",
+    report_total: "الإجمالي — تحصيل {income}، نقد مستخدم {expense}، مصاريف محل {shop}، صافي {net}",
+    tag_shop: "[محل]", tag_cash: "[نقد مستخدم]",
+    settings_shop_name: "اسم المحل", placeholder_shop_name: "اسم المحل",
+    settings_workers: "العمال", placeholder_new_worker: "اسم عامل جديد",
+    settings_currency: "العملة", settings_language: "اللغة", settings_region: "العملة واللغة",
+    settings_backup_title: "نسخ احتياطي لجميع البيانات", settings_backup_sub: "ينسخ كل إدخال كنص للصقه في Notes أو Sheets وغيرها.",
+    settings_reset_title: "إعادة تعيين جميع البيانات", settings_reset_sub: "يحذف كل إدخال وعامل. لا يمكن التراجع عن هذا."
+  },
+  bn: {
+    nav_today: "আজ", nav_history: "ইতিহাস", nav_settings: "সেটিংস",
+    today_net_label: "আজকের নেট ক্যাশ", history_net_label: "এই সময়ের নেট",
+    tile_collected: "সংগৃহীত", tile_cash_used: "নগদ ব্যবহার", tile_shop_expenses: "দোকানের খরচ",
+    btn_add_collection: "কালেকশন যুক্ত করুন", btn_cash_used: "নগদ ব্যবহার", btn_shop_expense: "দোকানের খরচ",
+    section_by_worker: "কর্মী অনুযায়ী", section_todays_entries: "আজকের এন্ট্রি", section_days: "দিন", section_data: "ডেটা",
+    entries_count: "{count} এন্ট্রি",
+    empty_today: "আজ এখনও কোনো এন্ট্রি নেই। নিচের বাটনে চাপুন।",
+    empty_no_workers: "কোনো কর্মী নেই। সেটিংসে যুক্ত করুন।",
+    empty_history: "এই সময়ে কোনো এন্ট্রি নেই।",
+    unassigned: "অনির্ধারিত", fallback_shop_expense: "দোকানের খরচ", fallback_cash_used: "নগদ ব্যবহার",
+    logged_by: "{name} লগ করেছেন",
+    sheet_title_income: "কালেকশন যুক্ত করুন", sheet_title_shop: "দোকানের খরচ যুক্ত করুন", sheet_title_cash: "নগদ ব্যবহার যুক্ত করুন",
+    label_which_worker: "কোন কর্মী?", label_who_logged: "কে লগ করেছেন? (ঐচ্ছিক)",
+    label_amount: "পরিমাণ", label_common_categories: "সাধারণ বিভাগ",
+    label_note_optional: "নোট (ঐচ্ছিক)", label_what_for: "কী জন্য?",
+    placeholder_note_income: "যেমন চুল কাটা, টিপস", placeholder_note_shop: "যেমন ভাড়া, সরবরাহ", placeholder_note_cash: "যেমন লাঞ্চ, টিলের চেঞ্জ",
+    cat_rent: "ভাড়া", cat_supplies: "সরবরাহ", cat_utilities: "ইউটিলিটি", cat_maintenance: "রক্ষণাবেক্ষণ", cat_other: "অন্যান্য",
+    btn_cancel: "বাতিল", btn_save: "সেভ করুন", btn_delete: "ডিলিট করুন", btn_copy: "কপি করুন", btn_add: "যুক্ত করুন", btn_reset: "রিসেট করুন", btn_copy_report: "রিপোর্ট কপি করুন",
+    toast_enter_amount: "০ এর বেশি পরিমাণ লিখুন", toast_pick_worker: "এটি কোন কর্মীর জন্য তা নির্বাচন করুন",
+    toast_collection_added: "কালেকশন যুক্ত হয়েছে", toast_shop_added: "দোকানের খরচ যুক্ত হয়েছে", toast_cash_added: "নগদ ব্যবহার যুক্ত হয়েছে",
+    toast_entry_deleted: "এন্ট্রি মুছে ফেলা হয়েছে", toast_enter_name: "প্রথমে নাম লিখুন",
+    toast_data_copied: "সব ডেটা ক্লিপবোর্ডে কপি হয়েছে", toast_data_reset: "সব ডেটা রিসেট হয়েছে",
+    toast_report_copied: "রিপোর্ট কপি হয়েছে — যেকোনো জায়গায় পেস্ট করুন", toast_copy_failed: "কপি করা যায়নি — ম্যানুয়ালি নির্বাচন করে কপি করুন",
+    toast_save_failed: "সেভ করা যায়নি — স্টোরেজ পূর্ণ হতে পারে",
+    confirm_delete_title: "এই এন্ট্রি মুছবেন?", confirm_delete_text: "এটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    confirm_remove_worker_title: "{name} কে বাদ দিবেন?", confirm_remove_worker_text: "এই নামে পুরনো রেকর্ড ইতিহাসে থাকবে।",
+    confirm_reset_title: "সব ডেটা রিসেট করবেন?", confirm_reset_text: "প্রতিটি এন্ট্রি, কর্মী এবং দোকানের নাম স্থায়ীভাবে মুছে যাবে।",
+    range_week: "৭ দিন", range_month: "৩০ দিন", range_all: "সব সময়",
+    day_sub: "{income} এসেছে · {expense} নগদ ব্যবহার · {shop} দোকানের খরচ",
+    report_header: "{shop} — ক্যাশ রিপোর্ট", report_range_label: "সময়কাল: {range}",
+    report_range_week: "গত ৭ দিন", report_range_month: "গত ৩০ দিন", report_range_all: "সব সময়",
+    report_line: "{date} — সংগৃহীত {income}, নগদ ব্যবহার {expense}, দোকানের খরচ {shop}, নেট {net}",
+    report_total: "মোট — সংগৃহীত {income}, নগদ ব্যবহার {expense}, দোকানের খরচ {shop}, নেট {net}",
+    tag_shop: "[দোকান]", tag_cash: "[নগদ ব্যবহার]",
+    settings_shop_name: "দোকানের নাম", placeholder_shop_name: "দোকানের নাম",
+    settings_workers: "কর্মীরা", placeholder_new_worker: "নতুন কর্মীর নাম",
+    settings_currency: "মুদ্রা", settings_language: "ভাষা", settings_region: "মুদ্রা ও ভাষা",
+    settings_backup_title: "সব ডেটা ব্যাকআপ করুন", settings_backup_sub: "প্রতিটি এন্ট্রি টেক্সট হিসেবে কপি করে — Notes, Sheets ইত্যাদিতে পেস্ট করুন।",
+    settings_reset_title: "সব ডেটা রিসেট করুন", settings_reset_sub: "প্রতিটি এন্ট্রি ও কর্মী মুছে যাবে। পূর্বাবস্থায় ফেরানো যাবে না।"
+  },
+  ur: {
+    nav_today: "آج", nav_history: "تاریخ", nav_settings: "ترتیبات",
+    today_net_label: "آج کی نیٹ نقدی", history_net_label: "اس مدت کی نیٹ رقم",
+    tile_collected: "وصول شدہ", tile_cash_used: "نقدی استعمال", tile_shop_expenses: "دکان کے اخراجات",
+    btn_add_collection: "کلیکشن شامل کریں", btn_cash_used: "نقدی استعمال", btn_shop_expense: "دکان کا خرچ",
+    section_by_worker: "کارکن کے لحاظ سے", section_todays_entries: "آج کی اندراجات", section_days: "دن", section_data: "ڈیٹا",
+    entries_count: "{count} اندراجات",
+    empty_today: "آج تک کوئی اندراج نہیں۔ نیچے بٹن دبائیں۔",
+    empty_no_workers: "کوئی کارکن نہیں ہے۔ ترتیبات میں شامل کریں۔",
+    empty_history: "اس مدت میں کوئی اندراج نہیں۔",
+    unassigned: "غیر متعین", fallback_shop_expense: "دکان کا خرچ", fallback_cash_used: "نقدی استعمال",
+    logged_by: "{name} نے درج کیا",
+    sheet_title_income: "کلیکشن شامل کریں", sheet_title_shop: "دکان کا خرچ شامل کریں", sheet_title_cash: "نقدی استعمال شامل کریں",
+    label_which_worker: "کون سا کارکن؟", label_who_logged: "کس نے درج کیا؟ (اختیاری)",
+    label_amount: "رقم", label_common_categories: "عام زمرے",
+    label_note_optional: "نوٹ (اختیاری)", label_what_for: "کس لیے؟",
+    placeholder_note_income: "مثلاً بال کٹائی، ٹپ", placeholder_note_shop: "مثلاً کرایہ، سامان", placeholder_note_cash: "مثلاً کھانا، تھیلی کے لیے چینج",
+    cat_rent: "کرایہ", cat_supplies: "سامان", cat_utilities: "یوٹیلیٹی", cat_maintenance: "مینٹیننس", cat_other: "دیگر",
+    btn_cancel: "منسوخ کریں", btn_save: "محفوظ کریں", btn_delete: "حذف کریں", btn_copy: "کاپی کریں", btn_add: "شامل کریں", btn_reset: "ری سیٹ کریں", btn_copy_report: "رپورٹ کاپی کریں",
+    toast_enter_amount: "0 سے زیادہ رقم درج کریں", toast_pick_worker: "یہ کس کارکن کے لیے ہے، منتخب کریں",
+    toast_collection_added: "کلیکشن شامل ہو گئی", toast_shop_added: "دکان کا خرچ شامل ہو گیا", toast_cash_added: "نقدی استعمال شامل ہو گیا",
+    toast_entry_deleted: "اندراج حذف ہو گیا", toast_enter_name: "پہلے نام درج کریں",
+    toast_data_copied: "تمام ڈیٹا کاپی ہو گیا", toast_data_reset: "تمام ڈیٹا ری سیٹ ہو گیا",
+    toast_report_copied: "رپورٹ کاپی ہو گئی — کہیں بھی پیسٹ کریں", toast_copy_failed: "کاپی نہیں ہو سکی — دستی طور پر منتخب کر کے کاپی کریں",
+    toast_save_failed: "محفوظ نہیں ہو سکا — اسٹوریج بھرا ہو سکتا ہے",
+    confirm_delete_title: "یہ اندراج حذف کریں؟", confirm_delete_text: "اسے واپس نہیں لایا جا سکتا۔",
+    confirm_remove_worker_title: "{name} کو ہٹائیں؟", confirm_remove_worker_text: "اس نام کے پرانے ریکارڈ تاریخ میں رہیں گے۔",
+    confirm_reset_title: "تمام ڈیٹا ری سیٹ کریں؟", confirm_reset_text: "ہر اندراج، کارکن اور دکان کا نام ہمیشہ کے لیے حذف ہو جائے گا۔",
+    range_week: "7 دن", range_month: "30 دن", range_all: "تمام وقت",
+    day_sub: "{income} آیا · {expense} نقدی استعمال · {shop} دکان کا خرچ",
+    report_header: "{shop} — نقدی رپورٹ", report_range_label: "مدت: {range}",
+    report_range_week: "پچھلے 7 دن", report_range_month: "پچھلے 30 دن", report_range_all: "تمام وقت",
+    report_line: "{date} — وصول {income}، نقدی استعمال {expense}، دکان کا خرچ {shop}، نیٹ {net}",
+    report_total: "کل — وصول {income}، نقدی استعمال {expense}، دکان کا خرچ {shop}، نیٹ {net}",
+    tag_shop: "[دکان]", tag_cash: "[نقدی استعمال]",
+    settings_shop_name: "دکان کا نام", placeholder_shop_name: "دکان کا نام",
+    settings_workers: "کارکن", placeholder_new_worker: "نئے کارکن کا نام",
+    settings_currency: "کرنسی", settings_language: "زبان", settings_region: "کرنسی اور زبان",
+    settings_backup_title: "تمام ڈیٹا کا بیک اپ لیں", settings_backup_sub: "ہر اندراج کو ٹیکسٹ کے طور پر کاپی کرتا ہے — Notes، Sheets وغیرہ میں پیسٹ کریں۔",
+    settings_reset_title: "تمام ڈیٹا ری سیٹ کریں", settings_reset_sub: "ہر اندراج اور کارکن حذف ہو جائے گا۔ واپس نہیں لایا جا سکتا۔"
+  }
+};
+
+function t(key, vars) {
+  const dict = TRANSLATIONS[state.language] || TRANSLATIONS.en;
+  let str = (dict[key] !== undefined) ? dict[key] : (TRANSLATIONS.en[key] || key);
+  if (vars) {
+    Object.keys(vars).forEach(k => { str = str.split('{' + k + '}').join(vars[k]); });
+  }
+  return str;
+}
+
+/* ============ State ============ */
+const STORAGE_KEY = 'salonCashTracker_v1';
+
+function defaultState() {
+  return {
+    shopName: 'Salon',
+    currency: 'USD',
+    language: 'en',
+    workers: ['Worker 1', 'Worker 2', 'Worker 3'],
+    entries: [] // {id, date:'YYYY-MM-DD', time:'HH:MM', worker:string|null, type:'income'|'expense'|'shopexpense', amount:number, note:string}
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.entries) || !Array.isArray(parsed.workers)) return defaultState();
+    if (!parsed.currency) parsed.currency = 'USD';
+    if (!parsed.language) parsed.language = 'en';
+    return parsed;
+  } catch (e) {
+    return defaultState();
+  }
+}
+
+let state = loadState();
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    showToast(t('toast_save_failed'));
+  }
+}
+
+/* ============ Helpers ============ */
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function nowTime() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function currencySymbol() {
+  return (CURRENCIES[state.currency] || CURRENCIES.USD).symbol;
+}
+function fmtMoney(n) {
+  const sign = n < 0 ? '-' : '';
+  return sign + currencySymbol() + Math.abs(n).toFixed(2);
+}
+function localeForLang() {
+  return (LANGUAGES[state.language] || LANGUAGES.en).locale;
+}
+function fmtDateLong(dateStr) {
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  try {
+    return dt.toLocaleDateString(localeForLang(), { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (e) {
+    return dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+}
+function fmtDateShort(dateStr) {
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  try {
+    return dt.toLocaleDateString(localeForLang(), { weekday: 'short', month: 'short', day: 'numeric' });
+  } catch (e) {
+    return dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function entriesForDate(dateStr) {
+  return state.entries.filter(e => e.date === dateStr).sort((a,b) => (a.time+a.id) < (b.time+b.id) ? 1 : -1);
+}
+function totalsForEntries(list) {
+  let income = 0, expense = 0, shopExpense = 0;
+  const perWorker = {};
+  list.forEach(e => {
+    if (e.type === 'income') {
+      income += e.amount;
+      const w = e.worker || t('unassigned');
+      perWorker[w] = (perWorker[w] || 0) + e.amount;
+    } else if (e.type === 'shopexpense') {
+      shopExpense += e.amount;
+    } else {
+      expense += e.amount;
+    }
+  });
+  return { income, expense, shopExpense, net: income - expense - shopExpense, perWorker };
+}
+function allDatesSorted() {
+  const set = new Set(state.entries.map(e => e.date));
+  return Array.from(set).sort().reverse();
+}
+function dateDaysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+/* ============ Routing ============ */
+function currentView() {
+  const h = location.hash.replace('#','');
+  return ['today','history','settings'].includes(h) ? h : 'today';
+}
+function goTo(view) {
+  location.hash = view;
+}
+window.addEventListener('hashchange', render);
+
+/* ============ Render root ============ */
+function render() {
+  const view = currentView();
+
+  document.documentElement.lang = state.language;
+  document.documentElement.dir = (LANGUAGES[state.language] || LANGUAGES.en).dir;
+
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.getElementById('shopNameDisplay').textContent = state.shopName || 'Salon';
+  document.getElementById('dateDisplay').textContent = fmtDateLong(todayStr());
+
+  const main = document.getElementById('main');
+  if (view === 'today') main.innerHTML = renderToday();
+  else if (view === 'history') main.innerHTML = renderHistory();
+  else main.innerHTML = renderSettings();
+
+  if (view === 'history') wireHistory();
+  if (view === 'settings') wireSettings();
+}
+
+/* ============ TODAY VIEW ============ */
+function renderToday() {
+  const list = entriesForDate(todayStr());
+  const tt = totalsForEntries(list);
+  const netClass = tt.net < 0 ? 'neg' : 'pos';
+
+  const workerRows = state.workers.map(w => {
+    const amt = tt.perWorker[w] || 0;
+    const count = list.filter(e => e.type === 'income' && e.worker === w).length;
+    return `<div class="worker-row">
+      <div>
+        <div class="worker-name">${escapeHtml(w)}</div>
+        <div class="worker-count">${t('entries_count', { count })}</div>
+      </div>
+      <div class="worker-amt num">${fmtMoney(amt)}</div>
+    </div>`;
+  }).join('');
+
+  const entryRows = list.length ? list.map(e => entryRowHtml(e)).join('') :
+    `<div class="empty-state">${t('empty_today')}</div>`;
+
+  return `
+    <div class="card hero">
+      <div class="label">${t('today_net_label')}</div>
+      <div class="amount num ${netClass}">${fmtMoney(tt.net)}</div>
+      <div class="tiles">
+        <div class="tile income">
+          <div class="tlabel">${t('tile_collected').toUpperCase()}</div>
+          <div class="tval num">${fmtMoney(tt.income)}</div>
+        </div>
+        <div class="tile expense">
+          <div class="tlabel">${t('tile_cash_used').toUpperCase()}</div>
+          <div class="tval num">${fmtMoney(tt.expense)}</div>
+        </div>
+        <div class="tile shop">
+          <div class="tlabel">${t('tile_shop_expenses').toUpperCase()}</div>
+          <div class="tval num">${fmtMoney(tt.shopExpense)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="bigbtn collect" onclick="openEntrySheet('income')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+        ${t('btn_add_collection')}
+      </button>
+      <button class="bigbtn spend" onclick="openEntrySheet('expense')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>
+        ${t('btn_cash_used')}
+      </button>
+      <button class="bigbtn shopbtn" onclick="openEntrySheet('shopexpense')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7h18M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2m2 0v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7h16z"/></svg>
+        ${t('btn_shop_expense')}
+      </button>
+    </div>
+
+    <div class="section-label">${t('section_by_worker')}</div>
+    <div class="card">${workerRows || `<div class="empty-state">${t('empty_no_workers')}</div>`}</div>
+
+    <div class="section-label">${t('section_todays_entries')}</div>
+    <div class="card">${entryRows}</div>
+  `;
+}
+
+function entryRowHtml(e) {
+  const isIncome = e.type === 'income';
+  const isShop = e.type === 'shopexpense';
+  const kind = isIncome ? 'income' : isShop ? 'shop' : 'expense';
+
+  const title = isIncome ? (e.worker || t('unassigned'))
+    : isShop ? (e.note || t('fallback_shop_expense'))
+    : (e.note || t('fallback_cash_used'));
+
+  const sub = isIncome
+    ? (e.note ? `${e.time} · ${escapeHtml(e.note)}` : `${e.time}`)
+    : (e.worker ? `${e.time} · ${t('logged_by', { name: escapeHtml(e.worker) })}` : `${e.time}`);
+
+  return `
+    <div class="entry">
+      <div class="entry-icon ${kind}">${isIncome ? '+' : '–'}</div>
+      <div class="entry-body">
+        <div class="entry-title">${escapeHtml(title)}</div>
+        <div class="entry-sub">${sub}</div>
+      </div>
+      <div class="entry-amt num ${kind}">${isIncome ? '+' : '-'}${fmtMoney(e.amount)}</div>
+      <button class="entry-del" onclick="confirmDeleteEntry('${e.id}')" aria-label="Delete entry">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ----- Entry sheet (add collection / cash used / shop expense) ----- */
+function shopCategories() {
+  return [
+    { key: 'rent', label: t('cat_rent') },
+    { key: 'supplies', label: t('cat_supplies') },
+    { key: 'utilities', label: t('cat_utilities') },
+    { key: 'maintenance', label: t('cat_maintenance') },
+    { key: 'other', label: t('cat_other') }
+  ];
+}
+
+function openEntrySheet(type) {
+  const root = document.getElementById('overlayRoot');
+  let selectedWorker = null;
+  const workerChips = state.workers.map(w =>
+    `<button type="button" class="chip" data-worker="${escapeHtml(w)}">${escapeHtml(w)}</button>`
+  ).join('');
+
+  const sheetTitle = type === 'income' ? t('sheet_title_income') : type === 'shopexpense' ? t('sheet_title_shop') : t('sheet_title_cash');
+  const workerFieldLabel = type === 'income' ? t('label_which_worker') : t('label_who_logged');
+  const noteLabel = type === 'income' ? t('label_note_optional') : t('label_what_for');
+  const notePlaceholder = type === 'income' ? t('placeholder_note_income') : type === 'shopexpense' ? t('placeholder_note_shop') : t('placeholder_note_cash');
+
+  const categoryChips = type === 'shopexpense'
+    ? `<div class="field-label">${t('label_common_categories')}</div>
+       <div class="chips" id="categoryChips">${shopCategories().map(c => `<button type="button" class="chip" data-cat="${escapeHtml(c.label)}">${escapeHtml(c.label)}</button>`).join('')}</div>`
+    : '';
+
+  root.innerHTML = `
+    <div class="overlay" id="entryOverlay">
+      <div class="sheet">
+        <div class="sheet-title">${sheetTitle}</div>
+
+        <div class="field-label">${workerFieldLabel}</div>
+        <div class="chips" id="workerChips">${workerChips || (type === 'income' ? `<span style="color:var(--text-muted);font-size:13px;">${escapeHtml(t('empty_no_workers'))}</span>` : '')}</div>
+
+        <div class="field-label">${t('label_amount')}</div>
+        <div class="amount-input-wrap" id="amtWrap">
+          <span class="currency-sym">${escapeHtml(currencySymbol())}</span>
+          <input class="amount-input" id="amtInput" inputmode="decimal" placeholder="0.00" autocomplete="off">
+        </div>
+
+        ${categoryChips}
+
+        <div class="field-label">${noteLabel}</div>
+        <input class="text-input" id="noteInput" placeholder="${escapeHtml(notePlaceholder)}">
+
+        <div class="sheet-actions">
+          <button class="btn ghost" onclick="closeSheet()">${t('btn_cancel')}</button>
+          <button class="btn primary" id="saveEntryBtn">${t('btn_save')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const catWrap = document.getElementById('categoryChips');
+  if (catWrap) {
+    catWrap.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const already = chip.classList.contains('selected');
+        catWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        const noteInput = document.getElementById('noteInput');
+        if (!already) { chip.classList.add('selected'); noteInput.value = chip.dataset.cat; }
+        else noteInput.value = '';
+      });
+    });
+  }
+
+  const chipsWrap = document.getElementById('workerChips');
+  if (chipsWrap) {
+    chipsWrap.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const already = chip.classList.contains('selected');
+        chipsWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        if (!already) { chip.classList.add('selected'); selectedWorker = chip.dataset.worker; }
+        else selectedWorker = null;
+      });
+    });
+  }
+
+  const amtInput = document.getElementById('amtInput');
+  const amtWrap = document.getElementById('amtWrap');
+  amtInput.addEventListener('focus', () => amtWrap.classList.add('focused'));
+  amtInput.addEventListener('blur', () => amtWrap.classList.remove('focused'));
+  setTimeout(() => amtInput.focus(), 50);
+
+  document.getElementById('saveEntryBtn').addEventListener('click', () => {
+    const raw = amtInput.value.trim();
+    const amount = parseFloat(raw);
+    if (!raw || isNaN(amount) || amount <= 0) {
+      amtWrap.classList.add('focused');
+      amtInput.focus();
+      showToast(t('toast_enter_amount'));
+      return;
+    }
+    if (type === 'income' && state.workers.length && !selectedWorker) {
+      showToast(t('toast_pick_worker'));
+      return;
+    }
+    const note = document.getElementById('noteInput').value.trim();
+    state.entries.push({
+      id: uid(),
+      date: todayStr(),
+      time: nowTime(),
+      worker: selectedWorker,
+      type,
+      amount: Math.round(amount * 100) / 100,
+      note
+    });
+    saveState();
+    closeSheet();
+    render();
+    showToast(type === 'income' ? t('toast_collection_added') : type === 'shopexpense' ? t('toast_shop_added') : t('toast_cash_added'));
+  });
+
+  document.getElementById('entryOverlay').addEventListener('click', (ev) => {
+    if (ev.target.id === 'entryOverlay') closeSheet();
+  });
+}
+function closeSheet() {
+  document.getElementById('overlayRoot').innerHTML = '';
+}
+
+function confirmDeleteEntry(id) {
+  openConfirm(t('confirm_delete_title'), t('confirm_delete_text'), () => {
+    state.entries = state.entries.filter(e => e.id !== id);
+    saveState();
+    render();
+    showToast(t('toast_entry_deleted'));
+  });
+}
+
+function openConfirm(title, text, onConfirm) {
+  const root = document.getElementById('overlayRoot');
+  root.innerHTML = `
+    <div class="overlay" id="confirmOverlay">
+      <div class="sheet confirm-box">
+        <div class="sheet-title">${escapeHtml(title)}</div>
+        <div class="confirm-text">${escapeHtml(text)}</div>
+        <div class="sheet-actions">
+          <button class="btn ghost" id="confirmCancel">${t('btn_cancel')}</button>
+          <button class="btn primary" id="confirmOk" style="background:var(--expense);">${t('btn_delete')}</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('confirmCancel').onclick = closeSheet;
+  document.getElementById('confirmOk').onclick = () => { closeSheet(); onConfirm(); };
+  document.getElementById('confirmOverlay').addEventListener('click', (ev) => {
+    if (ev.target.id === 'confirmOverlay') closeSheet();
+  });
+}
+
+/* ============ HISTORY VIEW ============ */
+let historyRange = 'week'; // 'week' | 'month' | 'all'
+let expandedDay = null;
+
+function rangeDates() {
+  const all = allDatesSorted();
+  if (historyRange === 'all') return all;
+  const cutoff = historyRange === 'week' ? dateDaysAgo(6) : dateDaysAgo(29);
+  return all.filter(d => d >= cutoff);
+}
+
+function renderHistory() {
+  const dates = rangeDates();
+  const allEntries = dates.flatMap(d => entriesForDate(d));
+  const totals = totalsForEntries(allEntries);
+
+  const rows = dates.length ? dates.map(d => {
+    const list = entriesForDate(d);
+    const tt = totalsForEntries(list);
+    const isExpanded = expandedDay === d;
+    const detail = isExpanded ? `<div class="card" style="margin:6px 0 10px;border-radius:12px;">${list.map(entryRowHtml).join('')}</div>` : '';
+    return `
+      <div class="day-row" data-date="${d}">
+        <div>
+          <div class="day-date">${fmtDateShort(d)}</div>
+          <div class="day-sub">${t('day_sub', { income: fmtMoney(tt.income), expense: fmtMoney(tt.expense), shop: fmtMoney(tt.shopExpense) })}</div>
+        </div>
+        <div style="display:flex;align-items:center;">
+          <div class="day-net num" style="color:${tt.net < 0 ? 'var(--expense)' : 'var(--income)'}">${fmtMoney(tt.net)}</div>
+          <span class="chev">${isExpanded ? '▾' : '▸'}</span>
+        </div>
+      </div>
+      ${detail}
+    `;
+  }).join('') : `<div class="empty-state">${t('empty_history')}</div>`;
+
+  return `
+    <div class="range-tabs">
+      <button class="range-tab ${historyRange==='week'?'active':''}" data-range="week">${t('range_week')}</button>
+      <button class="range-tab ${historyRange==='month'?'active':''}" data-range="month">${t('range_month')}</button>
+      <button class="range-tab ${historyRange==='all'?'active':''}" data-range="all">${t('range_all')}</button>
+    </div>
+
+    <div class="card hero" style="margin-bottom:16px;">
+      <div class="label">${t('history_net_label')}</div>
+      <div class="amount num ${totals.net < 0 ? 'neg' : 'pos'}">${fmtMoney(totals.net)}</div>
+      <div class="tiles">
+        <div class="tile income"><div class="tlabel">${t('tile_collected').toUpperCase()}</div><div class="tval num">${fmtMoney(totals.income)}</div></div>
+        <div class="tile expense"><div class="tlabel">${t('tile_cash_used').toUpperCase()}</div><div class="tval num">${fmtMoney(totals.expense)}</div></div>
+        <div class="tile shop"><div class="tlabel">${t('tile_shop_expenses').toUpperCase()}</div><div class="tval num">${fmtMoney(totals.shopExpense)}</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button class="btn ghost" style="flex:none;padding:9px 16px;font-size:13px;" id="copyReportBtn">${t('btn_copy_report')}</button>
+    </div>
+
+    <div class="section-label">${t('section_days')}</div>
+    <div class="card">${rows}</div>
+  `;
+}
+
+function wireHistory() {
+  document.querySelectorAll('.range-tab').forEach(btn => {
+    btn.addEventListener('click', () => { historyRange = btn.dataset.range; expandedDay = null; render(); });
+  });
+  document.querySelectorAll('.day-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const d = row.dataset.date;
+      expandedDay = expandedDay === d ? null : d;
+      render();
+    });
+  });
+  const copyBtn = document.getElementById('copyReportBtn');
+  if (copyBtn) copyBtn.addEventListener('click', copyReportToClipboard);
+}
+
+function copyReportToClipboard() {
+  const dates = rangeDates().slice().sort();
+  const rangeLabel = historyRange === 'week' ? t('report_range_week') : historyRange === 'month' ? t('report_range_month') : t('report_range_all');
+  let lines = [t('report_header', { shop: state.shopName || 'Salon' }), t('report_range_label', { range: rangeLabel }), ''];
+  dates.forEach(d => {
+    const list = entriesForDate(d);
+    const tt = totalsForEntries(list);
+    lines.push(t('report_line', { date: fmtDateShort(d), income: fmtMoney(tt.income), expense: fmtMoney(tt.expense), shop: fmtMoney(tt.shopExpense), net: fmtMoney(tt.net) }));
+    list.slice().reverse().forEach(e => {
+      const who = e.type === 'income' ? (e.worker || t('unassigned')) : e.type === 'shopexpense' ? (e.note || t('fallback_shop_expense')) : (e.note || t('fallback_cash_used'));
+      const kindTag = e.type === 'income' ? '' : e.type === 'shopexpense' ? ' ' + t('tag_shop') : ' ' + t('tag_cash');
+      lines.push(`    ${e.time}  ${e.type === 'income' ? '+' : '-'}${fmtMoney(e.amount)}  ${who}${kindTag}${e.note && e.type==='income' ? ' - ' + e.note : ''}`);
+    });
+  });
+  const allT = totalsForEntries(dates.flatMap(d => entriesForDate(d)));
+  lines.push('', t('report_total', { income: fmtMoney(allT.income), expense: fmtMoney(allT.expense), shop: fmtMoney(allT.shopExpense), net: fmtMoney(allT.net) }));
+  const text = lines.join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(t('toast_report_copied'));
+  }).catch(() => {
+    showToast(t('toast_copy_failed'));
+  });
+}
+
+/* ============ SETTINGS VIEW ============ */
+function renderSettings() {
+  const workerRows = state.workers.map((w, i) => `
+    <div class="settings-row">
+      <input class="text-input" style="flex:1;" value="${escapeHtml(w)}" data-idx="${i}" data-role="worker-name">
+      <button class="icon-btn" data-idx="${i}" data-role="remove-worker" aria-label="Remove">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+      </button>
+    </div>
+  `).join('');
+
+  const currencyOptions = Object.keys(CURRENCIES).map(code =>
+    `<option value="${code}" ${state.currency === code ? 'selected' : ''}>${escapeHtml(CURRENCIES[code].label)}</option>`
+  ).join('');
+
+  const languageOptions = Object.keys(LANGUAGES).map(code =>
+    `<option value="${code}" ${state.language === code ? 'selected' : ''}>${escapeHtml(LANGUAGES[code].label)}</option>`
+  ).join('');
+
+  return `
+    <div class="section-label">${t('settings_shop_name')}</div>
+    <div class="card" style="padding:12px 14px;">
+      <input class="text-input" id="shopNameInput" value="${escapeHtml(state.shopName || '')}" placeholder="${escapeHtml(t('placeholder_shop_name'))}">
+    </div>
+
+    <div class="section-label">${t('settings_region')}</div>
+    <div class="card">
+      <div class="settings-row stack">
+        <div class="worker-name">${t('settings_currency')}</div>
+        <select class="select-input" id="currencySelect">${currencyOptions}</select>
+      </div>
+      <div class="settings-row stack">
+        <div class="worker-name">${t('settings_language')}</div>
+        <select class="select-input" id="languageSelect">${languageOptions}</select>
+      </div>
+    </div>
+
+    <div class="section-label">${t('settings_workers')}</div>
+    <div class="card">
+      ${workerRows}
+      <div class="add-worker-row">
+        <input class="text-input" id="newWorkerInput" placeholder="${escapeHtml(t('placeholder_new_worker'))}">
+        <button class="btn primary" style="flex:none;padding:10px 16px;" id="addWorkerBtn">${t('btn_add')}</button>
+      </div>
+    </div>
+
+    <div class="section-label">${t('section_data')}</div>
+    <div class="card">
+      <div class="settings-row">
+        <div>
+          <div style="font-weight:600;font-size:14px;">${t('settings_backup_title')}</div>
+          <div class="day-sub">${t('settings_backup_sub')}</div>
+        </div>
+        <button class="btn ghost" style="flex:none;padding:10px 14px;" id="backupBtn">${t('btn_copy')}</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div style="font-weight:600;font-size:14px;color:var(--expense);">${t('settings_reset_title')}</div>
+          <div class="day-sub">${t('settings_reset_sub')}</div>
+        </div>
+        <button class="btn ghost" style="flex:none;padding:10px 14px;color:var(--expense);" id="resetBtn">${t('btn_reset')}</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireSettings() {
+  document.getElementById('shopNameInput').addEventListener('change', (e) => {
+    state.shopName = e.target.value.trim() || 'Salon';
+    saveState();
+    render();
+  });
+
+  document.getElementById('currencySelect').addEventListener('change', (e) => {
+    state.currency = e.target.value;
+    saveState();
+    render();
+  });
+
+  document.getElementById('languageSelect').addEventListener('change', (e) => {
+    state.language = e.target.value;
+    saveState();
+    render();
+  });
+
+  document.querySelectorAll('[data-role="worker-name"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const idx = Number(e.target.dataset.idx);
+      const val = e.target.value.trim();
+      if (val) { state.workers[idx] = val; saveState(); }
+      else render();
+    });
+  });
+
+  document.querySelectorAll('[data-role="remove-worker"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.idx);
+      const name = state.workers[idx];
+      openConfirm(t('confirm_remove_worker_title', { name }), t('confirm_remove_worker_text'), () => {
+        state.workers.splice(idx, 1);
+        saveState();
+        render();
+      });
+    });
+  });
+
+  document.getElementById('addWorkerBtn').addEventListener('click', () => {
+    const input = document.getElementById('newWorkerInput');
+    const val = input.value.trim();
+    if (!val) { showToast(t('toast_enter_name')); return; }
+    state.workers.push(val);
+    saveState();
+    render();
+  });
+
+  document.getElementById('backupBtn').addEventListener('click', () => {
+    const text = JSON.stringify(state, null, 2);
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(t('toast_data_copied'));
+    }).catch(() => showToast(t('toast_copy_failed')));
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    openConfirm(t('confirm_reset_title'), t('confirm_reset_text'), () => {
+      const keepCurrency = state.currency, keepLanguage = state.language;
+      state = defaultState();
+      state.currency = keepCurrency;
+      state.language = keepLanguage;
+      saveState();
+      render();
+      showToast(t('toast_data_reset'));
+    });
+  });
+}
+
+/* ============ Init ============ */
+render();
+</script>
+</body>
+</html>
